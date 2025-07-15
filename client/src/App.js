@@ -1,3 +1,4 @@
+// Force re-deploy to pick up static.json
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Register from './pages/Register';
