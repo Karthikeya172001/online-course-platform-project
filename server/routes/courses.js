@@ -2,18 +2,28 @@ const express = require('express');
 const router = express.Router();
 const Course = require('../models/Course');
 
-// Add a new course
-router.post('/add', async (req, res) => {
-  const { title, description, instructor } = req.body;
-  const newCourse = new Course({ title, description, instructor });
-  await newCourse.save();
-  res.status(201).send('Course added');
+// ✅ Add course
+router.post('/', async (req, res) => {
+  try {
+    const { title, description, price } = req.body;
+    const newCourse = new Course({ title, description, price });
+    await newCourse.save();
+    res.status(201).json({ msg: 'Course created successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
 });
 
-// Get all courses
+// ✅ Get all courses
 router.get('/', async (req, res) => {
-  const courses = await Course.find();
-  res.json(courses);
+  try {
+    const courses = await Course.find();
+    res.json(courses);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
 });
 
 module.exports = router;
