@@ -14,8 +14,13 @@ function Navbar() {
     <nav style={styles.nav}>
       <Link to="/" style={styles.link}>Register</Link>
       <Link to="/login" style={styles.link}>Login</Link>
-      {token && <Link to="/courses" style={styles.link}>Courses</Link>}
-      {token && <button onClick={handleLogout} style={styles.logout}>Logout</button>}
+      {token && (
+        <>
+          <Link to="/courses" style={styles.link}>Courses</Link>
+          <Link to="/add-course" style={styles.link}>Add Course</Link> {/* ✅ Add this */}
+          <button onClick={handleLogout} style={styles.logout}>Logout</button>
+        </>
+      )}
     </nav>
   );
 }
