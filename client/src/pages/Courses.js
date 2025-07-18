@@ -1,25 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 
 function Courses() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    axios.get('https://your-backend-api.com/api/courses')
-      .then((res) => setCourses(res.data))
-      .catch((err) => console.error(err));
+    async function fetchCourses() {
+      try {
+        const res = await api.get('/courses');
+        setCourses(res.data);
+      } catch (err) {
+        console.error('Failed to fetch courses:', err);
+        alert('Error loading courses');
+      }
+    }
+
+    fetchCourses();
   }, []);
 
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
       <h2>Available Courses</h2>
-      {courses.map((course, index) => (
-        <div key={index} style={{ border: '1px solid gray', margin: '10px', padding: '10px' }}>
-          <h3>{course.title}</h3>
-          <p>{course.description}</p>
-          <strong>Instructor: {course.instructor}</strong>
-        </div>
-      ))}
+      {courses.length === 0 ? (
+        <p>No courses available.</p>
+      ) : (
+        courses.map(course => (
+          <div key={course._id} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+            <h3>{course.title}</h3>
+            <p>{course.description}</p>
+            <p><strong>Instructor:</strong> {course.instructor}</p>
+          </div>
+        ))
+      )}
     </div>
   );
 }
