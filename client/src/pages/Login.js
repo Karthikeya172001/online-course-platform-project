@@ -14,19 +14,20 @@ function Login() {
   };
 
   const handleSubmit = async e => {
-    e.preventDefault();
-    try {
-      const res = await api.post('/auth/login', formData);
-      const { token, user } = res.data;
+  e.preventDefault();
+  try {
+    const res = await api.post('/auth/login', formData);
+    const { token, user } = res.data;
 
-      localStorage.setItem('token', token);    // ✅ Save token
-      navigate('/courses');                    // ✅ Redirect to /courses
+    localStorage.setItem('token', token);       // ✅ Save token
+    navigate('/courses');                       // ✅ Redirect
+    alert(`Welcome back, ${user.username}`);
 
-      alert(`Welcome back, ${user.username}`);
-    } catch (err) {
-      alert(err.response?.data?.msg || 'Login failed');
-    }
-  };
+    setFormData({ email: '', password: '' });   // ✅ Clear fields
+  } catch (err) {
+    alert(err.response?.data?.msg || 'Login failed');
+  }
+};
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
