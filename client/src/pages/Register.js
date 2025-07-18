@@ -18,15 +18,15 @@ function Register() {
   };
 
   const handleSubmit = async e => {
-    e.preventDefault();
-    try {
-      const res = await api.post('/auth/register', formData);
-      alert(res.data.msg || 'Registered successfully!');
-      navigate('/courses'); // ✅ redirect to courses
-    } catch (err) {
-      alert(err.response?.data?.msg || 'Registration failed');
-    }
-  };
+  e.preventDefault();
+  try {
+    await api.post('/auth/register', formData);
+    alert('User registered successfully!');
+    setFormData({ username: '', email: '', password: '' }); // ✅ Clear fields
+  } catch (err) {
+    alert(err.response?.data?.msg || 'Registration failed');
+  }
+};
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
