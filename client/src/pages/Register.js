@@ -1,4 +1,7 @@
+// client/src/pages/Register.js
+
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // ✅ import navigate
 import api from '../api';
 
 function Register() {
@@ -7,6 +10,8 @@ function Register() {
     email: '',
     password: '',
   });
+
+  const navigate = useNavigate(); // ✅ useNavigate
 
   const handleChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,6 +22,7 @@ function Register() {
     try {
       const res = await api.post('/auth/register', formData);
       alert(res.data.msg || 'Registered successfully!');
+      navigate('/courses'); // ✅ redirect to courses
     } catch (err) {
       alert(err.response?.data?.msg || 'Registration failed');
     }
