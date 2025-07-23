@@ -1,39 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import api from '../api';
+const express = require('express');
+const router = express.Router();
+const Course = require('../models/Course');
+const authMiddleware = require('../middleware/auth');
+const authorizeRole = require('../middleware/authorizeRole'); // ✅ Import
 
-function Courses() {
-  const [courses, setCourses] = useState([]);
-
-  useEffect(() => {
-    async function fetchCourses() {
-      try {
-        const res = await api.get('/courses');
-        setCourses(res.data);
-      } catch (err) {
-        console.error('Failed to fetch courses:', err);
-        alert('Error loading courses');
-      }
+// ✅ Add course (protected for instructors only)
+router.post(
+  '/',
+  authMiddleware,                 // ✅ Must be logged in
+  authorizeRole('instructor'),    // ✅ Must be instructor
+  async (req, res) => {
+    try {
+      const { title, description, instructor } = req.body;
+      const newCourse = new Course({ title, description, instructor });
+      await newCourse.save();
+      res.status(201).json({ msg: 'Course created successfully' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ msg: 'Server error' });
     }
+  }
+);
 
-    fetchCourses();
-  }, []);
+// ✅ Get all courses (public)
+router.get('/', async (req, res) => {
+  try {
+    const courses = await Course.find();
+    res.json(courses);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
 
-  return (
-    <div style={{ padding: '20px' }}>
-      <h2>Available Courses</h2>
-      {courses.length === 0 ? (
-        <p>No courses available.</p>
-      ) : (
-        courses.map(course => (
-          <div key={course._id} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
-            <h3>{course.title}</h3>
-            <p>{course.description}</p>
-            <p><strong>Instructor:</strong> {course.instructor}</p>
-          </div>
-        ))
-      )}
-    </div>
-  );
-}
-
-export default Courses;
+module.exports = router;
