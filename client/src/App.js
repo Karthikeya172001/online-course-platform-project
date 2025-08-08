@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Courses from './pages/Courses';
-import AddCourse from './pages/AddCourse'; // ✅ Add this line
+import AddCourse from './pages/AddCourse'; // ✅ import new page
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 
@@ -26,10 +27,10 @@ function App() {
           path="/add-course"
           element={
             <PrivateRoute>
-              <AddCourse />
+              <AddCourse /> {/* ✅ only logged-in users can access */}
             </PrivateRoute>
           }
-        /> {/* ✅ Add this route */}
+        />
       </Routes>
     </Router>
   );
