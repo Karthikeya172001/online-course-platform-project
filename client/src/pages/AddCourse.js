@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+
+  import React, { useState } from 'react';
+import api from '../api'; // ✅ uses your axios instance
+import { useNavigate } from 'react-router-dom';
 
 function AddCourse() {
+  const navigate = useNavigate();
   const [course, setCourse] = useState({
     title: '',
     description: '',
@@ -16,23 +19,48 @@ function AddCourse() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('https://online-course-api-m8p7.onrender.com/api/courses', course, {
+      if (!token) {
+        alert('Please log in first');
+        return navigate('/login');
+      }
+
+      await api.post('/courses', course, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       alert('✅ Course added successfully!');
-      setCourse({ title: '', description: '', instructor: '' }); // ✅ clear fields
+      setCourse({ title: '', description: '', instructor: '' }); // clear fields
+      navigate('/courses'); // go back to courses page
     } catch (err) {
-      alert('❌ Failed to add course');
+      alert(err.response?.data?.msg || 'Failed to add course');
     }
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+    <div style={{ maxWidth: '500px', margin: '0 auto' }}>
       <h2>Add New Course</h2>
       <form onSubmit={handleSubmit}>
-        <input name="title" placeholder="Title" value={course.title} onChange={handleChange} required /><br />
-        <input name="description" placeholder="Description" value={course.description} onChange={handleChange} required /><br />
-        <input name="instructor" placeholder="Instructor" value={course.instructor} onChange={handleChange} required /><br />
+        <input
+          name="title"
+          placeholder="Title"
+          value={course.title}
+          onChange={handleChange}
+          required
+        /><br /><br />
+        <input
+          name="description"
+          placeholder="Description"
+          value={course.description}
+          onChange={handleChange}
+          required
+        /><br /><br />
+        <input
+          name="instructor"
+          placeholder="Instructor"
+          value={course.instructor}
+          onChange={handleChange}
+          required
+        /><br /><br />
         <button type="submit">Add Course</button>
       </form>
     </div>
