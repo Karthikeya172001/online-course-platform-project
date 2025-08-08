@@ -1,3 +1,4 @@
+
 import jwtDecode from 'jwt-decode';
 
 export default function getRole() {
@@ -6,7 +7,7 @@ export default function getRole() {
 
   try {
     const decoded = jwtDecode(token);
-    return decoded.role || null; // assuming your JWT has a "role" field
+    return decoded.role || null; // JWT must contain "role"
   } catch (err) {
     console.error('Invalid token');
     return null;
