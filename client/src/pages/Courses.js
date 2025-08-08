@@ -1,36 +1,29 @@
-const express = require('express');
-const router = express.Router();
-const Course = require('../models/Course');
-const authMiddleware = require('../middleware/auth');
-const authorizeRole = require('../middleware/authorizeRole'); // ✅ Import
 
-// ✅ Add course (protected for instructors only)
-router.post(
-  '/',
-  authMiddleware,                 // ✅ Must be logged in
-  authorizeRole('instructor'),    // ✅ Must be instructor
-  async (req, res) => {
-    try {
-      const { title, description, instructor } = req.body;
-      const newCourse = new Course({ title, description, instructor });
-      await newCourse.save();
-      res.status(201).json({ msg: 'Course created successfully' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ msg: 'Server error' });
-    }
-  }
-);
+  import React, { useEffect, useState } from 'react';
+import api from '../api';
 
-// ✅ Get all courses (public)
-router.get('/', async (req, res) => {
-  try {
-    const courses = await Course.find();
-    res.json(courses);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Server error' });
-  }
-});
+function Courses() {
+  const [courses, setCourses] = useState([]);
 
-module.exports = router;
+  useEffect(() => {
+    api.get('/courses')
+      .then(res => setCourses(res.data))
+      .catch(err => console.error(err));
+  }, []);
+
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <h2>Available Courses</h2>
+      {courses.map((course, index) => (
+        <div key={index}>
+          <h3>{course.title}</h3>
+          <p>{course.description}</p>
+          <small>Instructor: {course.instructor}</small>
+          <hr />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default Courses;
