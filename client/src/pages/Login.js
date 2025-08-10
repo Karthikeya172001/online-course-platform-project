@@ -16,7 +16,7 @@ function Login() {
   const handleSubmit = async e => {
   e.preventDefault();
   try {
-    const res = await api.post('/auth/login', formData);
+    const res = await axios.post('https://online-course-platform-project-backend.onrender.com/api/auth/login', formData);
     const { token, user } = res.data;
 
     localStorage.setItem('token', token);       // ✅ Save token
