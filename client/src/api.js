@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://online-course-api-m8p7.onrender.com/api',
+  baseURL: 'https://online-course-platform-project-backend.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
   },
