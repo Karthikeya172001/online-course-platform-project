@@ -6,7 +6,7 @@ function Courses() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    api.get('/courses')
+    axios.get('https://online-course-platform-project-backend.onrender.com/api/courses')
       .then(res => setCourses(res.data))
       .catch(err => console.error(err));
   }, []);
