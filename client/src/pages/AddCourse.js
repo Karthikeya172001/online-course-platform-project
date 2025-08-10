@@ -24,7 +24,7 @@ function AddCourse() {
         return navigate('/login');
       }
 
-      await api.post('/courses', course, {
+      await axios.post('https://online-course-platform-project-backend.onrender.com/api/courses', courseData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
