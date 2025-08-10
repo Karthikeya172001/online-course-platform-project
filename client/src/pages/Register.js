@@ -20,7 +20,7 @@ function Register() {
   const handleSubmit = async e => {
   e.preventDefault();
   try {
-    await api.post('/auth/register', formData);
+    await axios.post('https://online-course-platform-project-backend.onrender.com/api/auth/register', formData);
     alert('User registered successfully!');
     setFormData({ username: '', email: '', password: '' }); // ✅ Clear fields
   } catch (err) {
