@@ -1,43 +1,31 @@
 // client/src/pages/Register.js
-
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // ✅ import navigate
-import api from '../api';
+import API from '../api';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const navigate = useNavigate();
 
-  const navigate = useNavigate(); // ✅ useNavigate
+  const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleChange = e => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleSubmit = e => {
+    e.preventDefault();
+    API.post('/auth/register', formData)
+      .then(() => {
+        alert('User registered successfully!');
+        navigate('/login');
+      })
+      .catch(err => console.error(err));
   };
 
-  const handleSubmit = async e => {
-  e.preventDefault();
-  try {
-    await axios.post('https://online-course-platform-project-backend.onrender.com/api/auth/register', formData);
-    alert('User registered successfully!');
-    setFormData({ username: '', email: '', password: '' }); // ✅ Clear fields
-  } catch (err) {
-    alert(err.response?.data?.msg || 'Registration failed');
-  }
-};
-
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="text" name="username" placeholder="Username" onChange={handleChange} /><br />
-        <input type="email" name="email" placeholder="Email" onChange={handleChange} /><br />
-        <input type="password" name="password" placeholder="Password" onChange={handleChange} /><br />
-        <button type="submit">Register</button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <input name="name" placeholder="Name" onChange={handleChange} />
+      <input name="email" placeholder="Email" onChange={handleChange} />
+      <input name="password" type="password" placeholder="Password" onChange={handleChange} />
+      <button type="submit">Register</button>
+    </form>
   );
 }
 
