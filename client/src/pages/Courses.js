@@ -7,18 +7,18 @@ function Courses() {
 
   useEffect(() => {
     API.get('/courses')
-      .then(res => setCourses(res.data))
-      .catch(err => console.error(err));
+      .then((res) => setCourses(res.data))
+      .catch((err) => console.error(err));
   }, []);
 
   return (
     <div>
-      <h2>Available Courses</h2>
-      {courses.map((course, idx) => (
-        <div key={idx}>
-          <h3>{course.title}</h3>
+      <h1>Available Courses</h1>
+      {courses.map((course) => (
+        <div key={course._id}>
+          <h2>{course.title}</h2>
           <p>{course.description}</p>
-          <p><strong>Instructor:</strong> {course.instructor}</p>
+          <p><b>Instructor:</b> {course.instructor}</p>
         </div>
       ))}
     </div>
