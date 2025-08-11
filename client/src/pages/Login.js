@@ -1,43 +1,30 @@
+
 import React, { useState } from 'react';
-import api from '../api';
+import API from '../api';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
 
-  const handleChange = e => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    API.post('/auth/login', formData)
+      .then(res => {
+        localStorage.setItem('token', res.data.token);
+        navigate('/courses');
+      })
+      .catch(err => console.error(err));
   };
 
-  const handleSubmit = async e => {
-  e.preventDefault();
-  try {
-    const res = await axios.post('https://online-course-platform-project-backend.onrender.com/api/auth/login', formData);
-    const { token, user } = res.data;
-
-    localStorage.setItem('token', token);       // ✅ Save token
-    navigate('/courses');                       // ✅ Redirect
-    alert(`Welcome back, ${user.username}`);
-
-    setFormData({ email: '', password: '' });   // ✅ Clear fields
-  } catch (err) {
-    alert(err.response?.data?.msg || 'Login failed');
-  }
-};
-
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="email" name="email" placeholder="Email" onChange={handleChange} /><br />
-        <input type="password" name="password" placeholder="Password" onChange={handleChange} /><br />
-        <button type="submit">Login</button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <input name="email" placeholder="Email" onChange={handleChange} />
+      <input name="password" type="password" placeholder="Password" onChange={handleChange} />
+      <button type="submit">Login</button>
+    </form>
   );
 }
 
