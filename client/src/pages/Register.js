@@ -2,9 +2,15 @@ import React, { useState } from 'react';
 import API from '../api';
 
 function Register() {
-  const [form, setForm] = useState({ username: '', email: '', password: '', role: 'student' });
+  const [form, setForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: 'student'
+  });
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,9 +24,26 @@ function Register() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input name="username" placeholder="Name" onChange={handleChange} />
-      <input name="email" placeholder="Email" onChange={handleChange} />
-      <input name="password" type="password" placeholder="Password" onChange={handleChange} />
+      <input
+        name="username"
+        placeholder="Name"
+        onChange={handleChange}
+        required
+      />
+      <input
+        name="email"
+        placeholder="Email"
+        type="email"
+        onChange={handleChange}
+        required
+      />
+      <input
+        name="password"
+        placeholder="Password"
+        type="password"
+        onChange={handleChange}
+        required
+      />
       <select name="role" onChange={handleChange}>
         <option value="student">Student</option>
         <option value="instructor">Instructor</option>
