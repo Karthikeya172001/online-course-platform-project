@@ -1,3 +1,4 @@
+// client/src/pages/Register.js
 import React, { useState } from 'react';
 import API from '../api';
 
@@ -27,13 +28,14 @@ function Register() {
       <input
         name="username"
         placeholder="Name"
+        value={form.username}
         onChange={handleChange}
         required
       />
       <input
         name="email"
         placeholder="Email"
-        type="email"
+        value={form.email}
         onChange={handleChange}
         required
       />
@@ -41,10 +43,11 @@ function Register() {
         name="password"
         placeholder="Password"
         type="password"
+        value={form.password}
         onChange={handleChange}
         required
       />
-      <select name="role" onChange={handleChange}>
+      <select name="role" value={form.role} onChange={handleChange}>
         <option value="student">Student</option>
         <option value="instructor">Instructor</option>
       </select>
