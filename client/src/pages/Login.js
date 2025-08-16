@@ -1,3 +1,4 @@
+// client/src/pages/Login.js
 import React, { useState } from 'react';
 import API from '../api';
 
@@ -13,7 +14,7 @@ function Login() {
       const res = await API.post('/auth/login', form);
       localStorage.setItem('token', res.data.token);
       alert('Login successful!');
-      window.location.href = '/courses'; // redirect to Courses page
+      window.location.href = '/courses';
     } catch (err) {
       alert(err.response?.data?.msg || 'Error logging in');
     }
@@ -23,15 +24,16 @@ function Login() {
     <form onSubmit={handleSubmit}>
       <input
         name="email"
-        type="email"
         placeholder="Email"
+        value={form.email}
         onChange={handleChange}
         required
       />
       <input
         name="password"
-        type="password"
         placeholder="Password"
+        type="password"
+        value={form.password}
         onChange={handleChange}
         required
       />
