@@ -20,7 +20,7 @@ function AddCourse() {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert('Course added successfully!');
-      setForm({ title: '', description: '', instructor: '' }); // reset form
+      setForm({ title: '', description: '', instructor: '' });
     } catch (err) {
       alert(err.response?.data?.msg || 'Error adding course');
     }
