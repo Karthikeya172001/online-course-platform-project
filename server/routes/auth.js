@@ -23,7 +23,7 @@ router.post('/register', async (req, res) => {
     // Hash password
     const hashedPass = await bcrypt.hash(password, 10);
 
-    // ✅ Save role from request, default to 'student'
+    // ✅ Save role from request (defaults to student)
     const newUser = new User({
       username,
       email,
@@ -33,7 +33,6 @@ router.post('/register', async (req, res) => {
 
     await newUser.save();
     res.status(201).json({ msg: 'User registered successfully' });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Server error' });
@@ -61,7 +60,7 @@ router.post('/login', async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    res.json({ token, user: { id: user._id, username: user.username, email: user.email } });
+    res.json({ token, user: { id: user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Server error' });
