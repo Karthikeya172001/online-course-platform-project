@@ -3,32 +3,19 @@ const express = require('express');
 const router = express.Router();
 const Course = require('../models/Course');
 const auth = require('../middleware/auth');
-const User = require('../models/User');
 
-// ✅ Add a new course (Instructor only)
+// ✅ Add new course (instructor auto-filled from JWT)
 router.post('/', auth, async (req, res) => {
   try {
-    // req.user.id comes from auth middleware (decoded JWT)
-    const user = await User.findById(req.user.id);
-
-    if (!user) {
-      return res.status(404).json({ msg: 'User not found' });
-    }
-
-    if (user.role !== 'instructor') {
-      return res.status(403).json({ msg: 'Only instructors can add courses' });
-    }
-
     const { title, description } = req.body;
-
     if (!title || !description) {
-      return res.status(400).json({ msg: 'Please provide title and description' });
+      return res.status(400).json({ msg: 'Please fill all fields' });
     }
 
     const newCourse = new Course({
       title,
       description,
-      instructor: user._id, // 👈 store instructor by ID
+      instructor: req.user.id // 👈 taken from JWT (logged-in instructor)
     });
 
     await newCourse.save();
@@ -39,7 +26,7 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// ✅ Get all courses (with instructor details)
+// ✅ Get all courses with instructor name
 router.get('/', async (req, res) => {
   try {
     const courses = await Course.find().populate('instructor', 'username email');
