@@ -5,23 +5,34 @@ import API from '../api';
 function Courses() {
   const [courses, setCourses] = useState([]);
 
+  // fetch courses on page load
   useEffect(() => {
-    API.get('/courses')
-      .then((res) => setCourses(res.data))
-      .catch((err) => console.error(err));
+    fetchCourses();
   }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const res = await API.get('/courses');
+      setCourses(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div>
       <h1>Available Courses</h1>
-      {courses.map((course) => (
-        <div key={course._id} style={styles.card}>
-          <h2>{course.title}</h2>
-          <p>{course.description}</p>
-          {/* ✅ show instructor username if backend populated it */}
-          <p><b>Instructor:</b> {course.instructor?.username || 'Unknown'}</p>
-        </div>
-      ))}
+      {courses.length === 0 ? (
+        <p>No courses available yet.</p>
+      ) : (
+        courses.map((course) => (
+          <div key={course._id} style={styles.card}>
+            <h2>{course.title}</h2>
+            <p>{course.description}</p>
+            <p><b>Instructor:</b> {course.instructor?.username || 'Unknown'}</p>
+          </div>
+        ))
+      )}
     </div>
   );
 }
