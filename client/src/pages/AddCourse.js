@@ -3,11 +3,7 @@ import React, { useState } from 'react';
 import API from '../api';
 
 function AddCourse() {
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    instructor: ''
-  });
+  const [form, setForm] = useState({ title: '', description: '' });
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,10 +15,10 @@ function AddCourse() {
       await API.post('/courses', form, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert('Course added successfully!');
-      setForm({ title: '', description: '', instructor: '' });
+      alert('✅ Course added successfully!');
+      setForm({ title: '', description: '' }); // reset form
     } catch (err) {
-      alert(err.response?.data?.msg || 'Error adding course');
+      alert(err.response?.data?.msg || '❌ Error adding course');
     }
   };
 
@@ -33,21 +29,12 @@ function AddCourse() {
         placeholder="Course Title"
         value={form.title}
         onChange={handleChange}
-        required
       />
       <input
         name="description"
         placeholder="Description"
         value={form.description}
         onChange={handleChange}
-        required
-      />
-      <input
-        name="instructor"
-        placeholder="Instructor Name"
-        value={form.instructor}
-        onChange={handleChange}
-        required
       />
       <button type="submit">Add Course</button>
     </form>
