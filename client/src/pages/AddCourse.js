@@ -2,21 +2,25 @@
 import React, { useState } from 'react';
 import API from '../api';
 
-function AddCourse() {
+function AddCourse({ onCourseAdded }) {
   const [form, setForm] = useState({ title: '', description: '' });
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await API.post('/courses', form, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await API.post('/courses', form, {
+        headers: { Authorization: `Bearer ${token}` }
       });
+
       alert('✅ Course added successfully!');
-      setForm({ title: '', description: '' }); // clear form
+      setForm({ title: '', description: '' }); // reset form
+
+      // 🔑 notify Courses page
+      if (onCourseAdded) onCourseAdded(res.data);
+
     } catch (err) {
       alert(err.response?.data?.msg || '❌ Error adding course');
     }
