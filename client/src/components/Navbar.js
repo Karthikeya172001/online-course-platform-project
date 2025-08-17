@@ -1,12 +1,12 @@
 // client/src/components/Navbar.js
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import getRole from '../utils/getRole'; // ✅ role checker utility
+import getRole from '../utils/getRole';
 
 function Navbar() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
-  const role = getRole(); // ✅ get role from JWT
+  const role = getRole();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
