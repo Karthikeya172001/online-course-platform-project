@@ -18,6 +18,7 @@ function Courses() {
         <div key={course._id} style={styles.card}>
           <h2>{course.title}</h2>
           <p>{course.description}</p>
+          {/* ✅ show instructor username if backend populated it */}
           <p><b>Instructor:</b> {course.instructor?.username || 'Unknown'}</p>
         </div>
       ))}
