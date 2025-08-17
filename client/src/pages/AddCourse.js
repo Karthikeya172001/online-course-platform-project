@@ -5,7 +5,7 @@ import API from '../api';
 function AddCourse() {
   const [form, setForm] = useState({ title: '', description: '' });
 
-  const handleChange = (e) =>
+  const handleChange = (e) => 
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
@@ -16,7 +16,7 @@ function AddCourse() {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('✅ Course added successfully!');
-      setForm({ title: '', description: '' }); // clear after submit
+      setForm({ title: '', description: '' }); // clear form after submit
     } catch (err) {
       alert(err.response?.data?.msg || '❌ Error adding course');
     }
@@ -24,19 +24,19 @@ function AddCourse() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        name="title"
-        placeholder="Course Title"
+      <input 
+        name="title" 
         value={form.title}
-        onChange={handleChange}
-        required
+        placeholder="Course Title" 
+        onChange={handleChange} 
+        required 
       />
-      <input
-        name="description"
-        placeholder="Description"
+      <input 
+        name="description" 
         value={form.description}
-        onChange={handleChange}
-        required
+        placeholder="Description" 
+        onChange={handleChange} 
+        required 
       />
       <button type="submit">Add Course</button>
     </form>
