@@ -5,29 +5,30 @@ const Course = require('../models/Course');
 const auth = require('../middleware/auth');
 const User = require('../models/User');
 
-// ✅ Add course (only for instructors)
+// ✅ Add a new course (Instructor only)
 router.post('/', auth, async (req, res) => {
   try {
-    const { title, description } = req.body;
+    // req.user.id comes from auth middleware (decoded JWT)
+    const user = await User.findById(req.user.id);
 
-    // find instructor from JWT user.id
-    const instructor = await User.findById(req.user.id).select('username role');
-    if (!instructor) {
-      return res.status(404).json({ msg: 'Instructor not found' });
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
     }
 
-    if (instructor.role !== 'instructor') {
+    if (user.role !== 'instructor') {
       return res.status(403).json({ msg: 'Only instructors can add courses' });
     }
 
-    // ✅ Save course with instructor info
+    const { title, description } = req.body;
+
+    if (!title || !description) {
+      return res.status(400).json({ msg: 'Please provide title and description' });
+    }
+
     const newCourse = new Course({
       title,
       description,
-      instructor: {
-        id: instructor._id,
-        username: instructor.username
-      }
+      instructor: user._id, // 👈 store instructor by ID
     });
 
     await newCourse.save();
@@ -38,10 +39,10 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// ✅ Get all courses
+// ✅ Get all courses (with instructor details)
 router.get('/', async (req, res) => {
   try {
-    const courses = await Course.find();
+    const courses = await Course.find().populate('instructor', 'username email');
     res.json(courses);
   } catch (err) {
     console.error(err);
