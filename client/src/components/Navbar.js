@@ -1,4 +1,4 @@
-
+// client/src/components/Navbar.js
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import getRole from '../utils/getRole'; // ✅ role checker utility
@@ -20,9 +20,6 @@ function Navbar() {
       {token && (
         <>
           <Link to="/courses" style={styles.link}>Courses</Link>
-          {role === 'instructor' && ( // ✅ Only instructors see Add Course
-            <Link to="/add-course" style={styles.link}>Add Course</Link>
-          )}
           <button onClick={handleLogout} style={styles.logout}>Logout</button>
         </>
       )}
@@ -54,3 +51,4 @@ const styles = {
 };
 
 export default Navbar;
+
