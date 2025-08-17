@@ -14,12 +14,15 @@ function AddCourse({ onCourseAdded }) {
       const res = await API.post('/courses', form, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
       alert('✅ Course added successfully!');
-      setForm({ title: '', description: '' }); // reset form
 
-      // 🔑 notify Courses page
-      if (onCourseAdded) onCourseAdded(res.data);
+      // 🔑 instantly update parent (Courses.js)
+      if (onCourseAdded) {
+        onCourseAdded(res.data);
+      }
+
+      // clear form
+      setForm({ title: '', description: '' });
 
     } catch (err) {
       alert(err.response?.data?.msg || '❌ Error adding course');
@@ -27,24 +30,33 @@ function AddCourse({ onCourseAdded }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        name="title"
-        placeholder="Course Title"
+    <form onSubmit={handleSubmit} style={styles.form}>
+      <input 
+        name="title" 
+        placeholder="Course Title" 
         value={form.title}
-        onChange={handleChange}
-        required
+        onChange={handleChange} 
+        required 
       />
-      <input
-        name="description"
-        placeholder="Description"
+      <input 
+        name="description" 
+        placeholder="Description" 
         value={form.description}
-        onChange={handleChange}
-        required
+        onChange={handleChange} 
+        required 
       />
       <button type="submit">Add Course</button>
     </form>
   );
 }
+
+const styles = {
+  form: {
+    marginBottom: '20px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px'
+  }
+};
 
 export default AddCourse;
