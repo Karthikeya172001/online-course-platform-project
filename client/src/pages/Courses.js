@@ -1,38 +1,40 @@
 // client/src/pages/Courses.js
 import React, { useEffect, useState } from 'react';
 import API from '../api';
+import AddCourse from './AddCourse';
+import getRole from '../utils/getRole';
 
 function Courses() {
   const [courses, setCourses] = useState([]);
+  const role = getRole(); // check if instructor
 
-  // fetch courses on page load
   useEffect(() => {
-    fetchCourses();
+    API.get('/courses')
+      .then((res) => setCourses(res.data))
+      .catch((err) => console.error(err));
   }, []);
 
-  const fetchCourses = async () => {
-    try {
-      const res = await API.get('/courses');
-      setCourses(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+  // 🔑 called when AddCourse adds a new course
+  const handleCourseAdded = (newCourse) => {
+    setCourses((prev) => [newCourse, ...prev]);
   };
 
   return (
     <div>
       <h1>Available Courses</h1>
-      {courses.length === 0 ? (
-        <p>No courses available yet.</p>
-      ) : (
-        courses.map((course) => (
-          <div key={course._id} style={styles.card}>
-            <h2>{course.title}</h2>
-            <p>{course.description}</p>
-            <p><b>Instructor:</b> {course.instructor?.username || 'Unknown'}</p>
-          </div>
-        ))
+
+      {/* Only instructors see Add Course form */}
+      {role === 'instructor' && (
+        <AddCourse onCourseAdded={handleCourseAdded} />
       )}
+
+      {courses.map((course) => (
+        <div key={course._id} style={styles.card}>
+          <h2>{course.title}</h2>
+          <p>{course.description}</p>
+          <p><b>Instructor:</b> {course.instructor?.username || 'Unknown'}</p>
+        </div>
+      ))}
     </div>
   );
 }
