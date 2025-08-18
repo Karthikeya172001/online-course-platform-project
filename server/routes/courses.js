@@ -1,38 +1,58 @@
-// server/routes/courses.js
 const express = require('express');
 const router = express.Router();
 const Course = require('../models/Course');
 const auth = require('../middleware/auth');
 
-// ✅ Add new course (instructor auto-filled from JWT)
+// ✅ Add a new course (already done)
 router.post('/', auth, async (req, res) => {
   try {
-    const { title, description } = req.body;
-    if (!title || !description) {
-      return res.status(400).json({ msg: 'Please fill all fields' });
-    }
-
     const newCourse = new Course({
-      title,
-      description,
-      instructor: req.user.id // 👈 taken from JWT (logged-in instructor)
+      title: req.body.title,
+      description: req.body.description,
+      instructor: req.user.id  // store instructor ID
     });
-
     await newCourse.save();
-    res.status(201).json(newCourse);
+    res.json(newCourse);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
 
-// ✅ Get all courses with instructor name
-router.get('/', async (req, res) => {
+// ✅ Delete a course (only the creator can delete)
+router.delete('/:id', auth, async (req, res) => {
   try {
-    const courses = await Course.find().populate('instructor', 'username email');
-    res.json(courses);
+    const course = await Course.findById(req.params.id);
+    if (!course) return res.status(404).json({ msg: 'Course not found' });
+
+    // check ownership
+    if (course.instructor.toString() !== req.user.id) {
+      return res.status(403).json({ msg: 'Not authorized' });
+    }
+
+    await course.deleteOne();
+    res.json({ msg: 'Course deleted' });
   } catch (err) {
-    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// ✅ Edit a course (only the creator can edit)
+router.put('/:id', auth, async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+    if (!course) return res.status(404).json({ msg: 'Course not found' });
+
+    // check ownership
+    if (course.instructor.toString() !== req.user.id) {
+      return res.status(403).json({ msg: 'Not authorized' });
+    }
+
+    course.title = req.body.title || course.title;
+    course.description = req.body.description || course.description;
+
+    await course.save();
+    res.json(course);
+  } catch (err) {
     res.status(500).json({ msg: 'Server error' });
   }
 });
