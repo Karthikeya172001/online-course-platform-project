@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../api';
-import getRole from '../utils/getRole';
+import getRole from '../utils/getRole'; // ✅ check role
 
 function Courses() {
   const [courses, setCourses] = useState([]);
-  const role = getRole();
+  const role = getRole(); // ✅ get role from token
 
   useEffect(() => {
     API.get('/courses')
@@ -23,10 +23,10 @@ function Courses() {
           <p>{course.description}</p>
           <p><b>Instructor:</b> {course.instructor?.username || 'Unknown'}</p>
 
-          {/* ✅ Only instructors see the Edit button */}
+          {/* ✅ Show Edit button only for instructors */}
           {role === 'instructor' && (
             <Link to={`/edit-course/${course._id}`} style={styles.editBtn}>
-              ✏️ Edit
+              Edit
             </Link>
           )}
         </div>
@@ -46,11 +46,11 @@ const styles = {
   editBtn: {
     display: 'inline-block',
     marginTop: '10px',
-    padding: '5px 10px',
+    padding: '6px 12px',
     backgroundColor: '#007bff',
     color: 'white',
     textDecoration: 'none',
-    borderRadius: '3px',
+    borderRadius: '4px',
   }
 };
 
