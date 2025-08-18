@@ -5,9 +5,9 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import Courses from './pages/Courses';
 import AddCourse from './pages/AddCourse';
-import EditCourse from './pages/EditCourse'; // ✅ new
+import EditCourse from './pages/EditCourse'; // ✅ import new page
 import Navbar from './components/Navbar';
-import PrivateRoute from './utils/PrivateRoute';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   return (
@@ -33,7 +33,7 @@ function App() {
           }
         />
         <Route
-          path="/edit-course/:id"
+          path="/edit-course/:id" // ✅ new route
           element={
             <PrivateRoute>
               <EditCourse />
