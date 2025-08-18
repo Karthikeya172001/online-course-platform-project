@@ -1,13 +1,11 @@
-// client/src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Courses from './pages/Courses';
 import AddCourse from './pages/AddCourse';
 import EditCourse from './pages/EditCourse'; // ✅ import new page
-import Navbar from './components/Navbar';
-import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   return (
@@ -16,30 +14,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route
-          path="/courses"
-          element={
-            <PrivateRoute>
-              <Courses />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/add-course"
-          element={
-            <PrivateRoute>
-              <AddCourse />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/edit-course/:id" // ✅ new route
-          element={
-            <PrivateRoute>
-              <EditCourse />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/add-course" element={<AddCourse />} />
+        <Route path="/edit-course/:id" element={<EditCourse />} /> {/* ✅ new route */}
       </Routes>
     </Router>
   );
