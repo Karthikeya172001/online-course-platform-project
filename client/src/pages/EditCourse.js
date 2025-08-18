@@ -4,18 +4,20 @@ import { useParams, useNavigate } from 'react-router-dom';
 import API from '../api';
 
 function EditCourse() {
-  const { id } = useParams(); // course ID from URL
+  const { id } = useParams(); // ✅ course id from URL
   const navigate = useNavigate();
   const [form, setForm] = useState({ title: '', description: '' });
 
+  // ✅ Load existing course details
   useEffect(() => {
     API.get(`/courses/${id}`)
       .then((res) => setForm({ title: res.data.title, description: res.data.description }))
-      .catch((err) => alert(err.response?.data?.msg || 'Error loading course'));
+      .catch((err) => console.error(err));
   }, [id]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  // ✅ Update course
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -24,32 +26,43 @@ function EditCourse() {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('✅ Course updated successfully!');
-      navigate('/courses');
+      navigate('/courses'); // redirect back to courses
     } catch (err) {
       alert(err.response?.data?.msg || '❌ Error updating course');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} style={styles.form}>
       <h2>Edit Course</h2>
-      <input 
-        name="title" 
-        placeholder="Course Title" 
+      <input
+        name="title"
         value={form.title}
-        onChange={handleChange} 
-        required 
+        onChange={handleChange}
+        placeholder="Course Title"
+        required
       />
-      <input 
-        name="description" 
-        placeholder="Description" 
+      <textarea
+        name="description"
         value={form.description}
-        onChange={handleChange} 
-        required 
+        onChange={handleChange}
+        placeholder="Description"
+        rows="4"
+        required
       />
-      <button type="submit">Save Changes</button>
+      <button type="submit">Update Course</button>
     </form>
   );
 }
+
+const styles = {
+  form: {
+    maxWidth: '500px',
+    margin: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px'
+  }
+};
 
 export default EditCourse;
