@@ -44,6 +44,19 @@ router.get('/', async (req, res) => {
   }
 });
 
+// ✅ Get single course by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id).populate('instructor', 'username');
+    if (!course) return res.status(404).json({ msg: 'Course not found' });
+    res.json(course);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+
 // ✅ Update a course (Instructor only, must own it)
 router.put('/:id', auth, async (req, res) => {
   try {
