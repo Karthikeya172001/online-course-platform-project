@@ -36,7 +36,6 @@ router.post('/', auth, async (req, res) => {
 // ✅ Get all courses
 router.get('/', async (req, res) => {
   try {
-    // Populate instructor username automatically
     const courses = await Course.find().populate('instructor', 'username');
     res.json(courses);
   } catch (err) {
@@ -51,7 +50,6 @@ router.put('/:id', auth, async (req, res) => {
     const course = await Course.findById(req.params.id);
     if (!course) return res.status(404).json({ msg: 'Course not found' });
 
-    // Ensure only the course owner can edit
     if (course.instructor.toString() !== req.user.id) {
       return res.status(403).json({ msg: 'Not authorized' });
     }
@@ -61,6 +59,24 @@ router.put('/:id', auth, async (req, res) => {
 
     await course.save();
     res.json({ msg: 'Course updated successfully', course });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// ✅ Delete a course (Instructor only, must own it)
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+    if (!course) return res.status(404).json({ msg: 'Course not found' });
+
+    if (course.instructor.toString() !== req.user.id) {
+      return res.status(403).json({ msg: 'Not authorized' });
+    }
+
+    await course.deleteOne();
+    res.json({ msg: 'Course deleted successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Server error' });
