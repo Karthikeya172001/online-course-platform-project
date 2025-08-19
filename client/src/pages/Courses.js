@@ -2,17 +2,32 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../api';
-import getRole from '../utils/getRole'; // ✅ check role
+import getRole from '../utils/getRole';
 
 function Courses() {
   const [courses, setCourses] = useState([]);
-  const role = getRole(); // ✅ get role from token
+  const role = getRole(); // ✅ check if instructor
 
   useEffect(() => {
     API.get('/courses')
       .then((res) => setCourses(res.data))
       .catch((err) => console.error(err));
   }, []);
+
+  // ✅ Delete course
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this course?")) return;
+    try {
+      const token = localStorage.getItem('token');
+      await API.delete(`/courses/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCourses(courses.filter(course => course._id !== id));
+      alert('✅ Course deleted');
+    } catch (err) {
+      alert(err.response?.data?.msg || '❌ Error deleting course');
+    }
+  };
 
   return (
     <div>
@@ -23,11 +38,12 @@ function Courses() {
           <p>{course.description}</p>
           <p><b>Instructor:</b> {course.instructor?.username || 'Unknown'}</p>
 
-          {/* ✅ Show Edit button only for instructors */}
+          {/* ✅ Only instructors see Edit/Delete */}
           {role === 'instructor' && (
-            <Link to={`/edit-course/${course._id}`} style={styles.editBtn}>
-              Edit
-            </Link>
+            <div style={styles.actions}>
+              <Link to={`/edit-course/${course._id}`} style={styles.editBtn}>✏️ Edit</Link>
+              <button onClick={() => handleDelete(course._id)} style={styles.deleteBtn}>🗑️ Delete</button>
+            </div>
           )}
         </div>
       ))}
@@ -43,14 +59,25 @@ const styles = {
     borderRadius: '5px',
     backgroundColor: '#fafafa',
   },
-  editBtn: {
-    display: 'inline-block',
+  actions: {
     marginTop: '10px',
-    padding: '6px 12px',
-    backgroundColor: '#007bff',
+    display: 'flex',
+    gap: '10px'
+  },
+  editBtn: {
+    padding: '5px 10px',
+    background: '#007bff',
     color: 'white',
-    textDecoration: 'none',
-    borderRadius: '4px',
+    borderRadius: '5px',
+    textDecoration: 'none'
+  },
+  deleteBtn: {
+    padding: '5px 10px',
+    background: 'red',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer'
   }
 };
 
