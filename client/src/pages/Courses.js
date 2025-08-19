@@ -36,11 +36,22 @@ function Courses() {
           <p>{course.description}</p>
           <p><b>Instructor:</b> {course.instructor?.username || 'Unknown'}</p>
 
-          {/* ✅ Show Delete button only for instructors */}
+          {/* ✅ Show Edit + Delete only for instructors */}
           {role === 'instructor' && (
-            <button onClick={() => handleDelete(course._id)} style={styles.delete}>
-              Delete
-            </button>
+            <div style={{ marginTop: '10px' }}>
+              <button 
+                onClick={() => window.location.href = `/edit-course/${course._id}`} 
+                style={styles.edit}
+              >
+                Edit
+              </button>
+              <button 
+                onClick={() => handleDelete(course._id)} 
+                style={styles.delete}
+              >
+                Delete
+              </button>
+            </div>
           )}
         </div>
       ))}
@@ -56,13 +67,20 @@ const styles = {
     borderRadius: '5px',
     backgroundColor: '#fafafa',
   },
+  edit: {
+    background: 'blue',
+    color: 'white',
+    border: 'none',
+    padding: '5px 10px',
+    cursor: 'pointer',
+    marginRight: '10px'
+  },
   delete: {
     background: 'red',
     color: 'white',
     border: 'none',
     padding: '5px 10px',
-    cursor: 'pointer',
-    marginTop: '10px'
+    cursor: 'pointer'
   }
 };
 
