@@ -4,7 +4,7 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import Courses from './pages/Courses';
 import AddCourse from './pages/AddCourse';
-import EditCourse from './pages/EditCourse';  // ✅ import the new page
+import EditCourse from './pages/EditCourse'; // ✅ import
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/courses" element={<Courses />} />
         <Route path="/add-course" element={<AddCourse />} />
-        <Route path="/edit-course/:id" element={<EditCourse />} />  {/* ✅ new route */}
+        <Route path="/edit-course/:id" element={<EditCourse />} /> {/* ✅ new route */}
       </Routes>
     </Router>
   );
