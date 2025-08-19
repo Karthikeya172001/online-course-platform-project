@@ -1,17 +1,18 @@
 // client/src/pages/EditCourse.js
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../api';
 
 function EditCourse() {
-  const { id } = useParams(); // ✅ course ID from URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const [form, setForm] = useState({ title: '', description: '' });
+  const token = localStorage.getItem('token');
 
-  // ✅ Load course details on mount
   useEffect(() => {
+    // ✅ Load existing course details
     API.get(`/courses/${id}`)
-      .then((res) => setForm({ title: res.data.title, description: res.data.description }))
+      .then((res) => setForm(res.data))
       .catch((err) => console.error(err));
   }, [id]);
 
@@ -20,14 +21,13 @@ function EditCourse() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
       await API.put(`/courses/${id}`, form, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      alert('✅ Course updated successfully!');
+      alert("✅ Course updated successfully!");
       navigate('/courses');
     } catch (err) {
-      alert(err.response?.data?.msg || '❌ Error updating course');
+      alert(err.response?.data?.msg || "❌ Error updating course");
     }
   };
 
@@ -37,15 +37,15 @@ function EditCourse() {
       <input 
         name="title" 
         value={form.title} 
-        onChange={handleChange} 
         placeholder="Course Title" 
+        onChange={handleChange} 
         required 
       />
-      <textarea 
+      <input 
         name="description" 
         value={form.description} 
-        onChange={handleChange} 
         placeholder="Description" 
+        onChange={handleChange} 
         required 
       />
       <button type="submit">Save Changes</button>
@@ -59,7 +59,7 @@ const styles = {
     flexDirection: 'column',
     gap: '10px',
     maxWidth: '400px',
-    margin: 'auto'
+    margin: 'auto',
   }
 };
 
