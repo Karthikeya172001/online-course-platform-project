@@ -1,16 +1,17 @@
+// client/src/pages/EditCourse.js
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../api';
 
 function EditCourse() {
-  const { id } = useParams(); // ✅ get course ID from URL
+  const { id } = useParams(); // ✅ course ID from URL
   const navigate = useNavigate();
   const [form, setForm] = useState({ title: '', description: '' });
 
-  // ✅ Load course details when page opens
+  // ✅ Load course details on mount
   useEffect(() => {
     API.get(`/courses/${id}`)
-      .then((res) => setForm(res.data))
+      .then((res) => setForm({ title: res.data.title, description: res.data.description }))
       .catch((err) => console.error(err));
   }, [id]);
 
@@ -24,7 +25,7 @@ function EditCourse() {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('✅ Course updated successfully!');
-      navigate('/courses'); // go back to course list
+      navigate('/courses');
     } catch (err) {
       alert(err.response?.data?.msg || '❌ Error updating course');
     }
@@ -32,22 +33,22 @@ function EditCourse() {
 
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
-      <h1>Edit Course</h1>
-      <input
-        name="title"
-        value={form.title}
-        placeholder="Course Title"
-        onChange={handleChange}
-        required
+      <h2>Edit Course</h2>
+      <input 
+        name="title" 
+        value={form.title} 
+        onChange={handleChange} 
+        placeholder="Course Title" 
+        required 
       />
-      <input
-        name="description"
-        value={form.description}
-        placeholder="Description"
-        onChange={handleChange}
-        required
+      <textarea 
+        name="description" 
+        value={form.description} 
+        onChange={handleChange} 
+        placeholder="Description" 
+        required 
       />
-      <button type="submit">Update Course</button>
+      <button type="submit">Save Changes</button>
     </form>
   );
 }
@@ -58,8 +59,8 @@ const styles = {
     flexDirection: 'column',
     gap: '10px',
     maxWidth: '400px',
-    margin: 'auto',
-  },
+    margin: 'auto'
+  }
 };
 
 export default EditCourse;
