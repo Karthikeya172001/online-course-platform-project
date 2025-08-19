@@ -3,16 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import API from '../api';
 
 function EditCourse() {
-  const { id } = useParams(); // get course id from URL
+  const { id } = useParams(); // ✅ get course ID from URL
   const navigate = useNavigate();
   const [form, setForm] = useState({ title: '', description: '' });
 
-  // ✅ Fetch existing course details
+  // ✅ Load course details when page opens
   useEffect(() => {
     API.get(`/courses/${id}`)
-      .then((res) => {
-        setForm({ title: res.data.title, description: res.data.description });
-      })
+      .then((res) => setForm(res.data))
       .catch((err) => console.error(err));
   }, [id]);
 
@@ -26,32 +24,42 @@ function EditCourse() {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('✅ Course updated successfully!');
-      navigate('/courses'); // redirect back to courses
+      navigate('/courses'); // go back to course list
     } catch (err) {
       alert(err.response?.data?.msg || '❌ Error updating course');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Edit Course</h2>
-      <input 
-        name="title" 
-        placeholder="Course Title" 
-        value={form.title} 
-        onChange={handleChange} 
-        required 
+    <form onSubmit={handleSubmit} style={styles.form}>
+      <h1>Edit Course</h1>
+      <input
+        name="title"
+        value={form.title}
+        placeholder="Course Title"
+        onChange={handleChange}
+        required
       />
-      <input 
-        name="description" 
-        placeholder="Description" 
-        value={form.description} 
-        onChange={handleChange} 
-        required 
+      <input
+        name="description"
+        value={form.description}
+        placeholder="Description"
+        onChange={handleChange}
+        required
       />
-      <button type="submit">Save Changes</button>
+      <button type="submit">Update Course</button>
     </form>
   );
 }
+
+const styles = {
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+    maxWidth: '400px',
+    margin: 'auto',
+  },
+};
 
 export default EditCourse;
