@@ -1,10 +1,12 @@
+// client/src/App.js
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Courses from './pages/Courses';
 import AddCourse from './pages/AddCourse';
-import EditCourse from './pages/EditCourse'; // ✅ import
+import EditCourse from './pages/EditCourse';  // ✅ import
+import Navbar from './components/Navbar';
 
 function App() {
   return (
