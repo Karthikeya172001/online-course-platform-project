@@ -1,5 +1,3 @@
-
-// client/src/utils/getRole.js
 import jwtDecode from 'jwt-decode';
 
 function getRole() {
@@ -7,7 +5,7 @@ function getRole() {
   if (!token) return null;
   try {
     const decoded = jwtDecode(token);
-    return decoded.role; // must match backend's token payload field
+    return decoded.role; // must match backend payload
   } catch (err) {
     return null;
   }
