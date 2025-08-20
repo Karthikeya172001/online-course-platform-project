@@ -1,58 +1,51 @@
 const express = require('express');
-const router = express.Router();
-const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-// ✅ Register route
+const router = express.Router();
+
+// Register
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
 
-    // Basic validation
     if (!username || !email || !password) {
       return res.status(400).json({ msg: 'Please fill all fields' });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ msg: 'Email already registered' });
-    }
+    const existing = await User.findOne({ email });
+    if (existing) return res.status(400).json({ msg: 'Email already registered' });
 
-    // Hash password
-    const hashedPass = await bcrypt.hash(password, 10);
+    const hashed = await bcrypt.hash(password, 10);
 
-    // ✅ Save role from request (defaults to student)
-    const newUser = new User({
+    const user = new User({
       username,
       email,
-      password: hashedPass,
+      password: hashed,
       role: role || 'student'
     });
 
-    await newUser.save();
-    res.status(201).json({ msg: 'User registered successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Server error' });
+    await user.save();
+    return res.status(201).json({ msg: 'User registered successfully' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ msg: 'Server error' });
   }
 });
 
-// ✅ Login route
+// Login
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
+    if (!email || !password)
       return res.status(400).json({ msg: 'Please enter email and password' });
-    }
 
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ msg: 'Invalid credentials' });
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok) return res.status(401).json({ msg: 'Invalid credentials' });
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
@@ -60,10 +53,13 @@ router.post('/login', async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    res.json({ token, user: { id: user._id, username: user.username, email: user.email, role: user.role } });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Server error' });
+    return res.json({
+      token,
+      user: { id: user._id, username: user.username, email: user.email, role: user.role }
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ msg: 'Server error' });
   }
 });
 
