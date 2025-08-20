@@ -1,5 +1,5 @@
-// client/src/pages/Courses.js
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import API from '../api';
 import getRole from '../utils/getRole';
 
@@ -36,22 +36,11 @@ function Courses() {
           <p>{course.description}</p>
           <p><b>Instructor:</b> {course.instructor?.username || 'Unknown'}</p>
 
-          {/* ✅ Show Edit + Delete only for instructors */}
           {role === 'instructor' && (
-            <div style={{ marginTop: '10px' }}>
-              <button 
-                onClick={() => window.location.href = `/edit-course/${course._id}`} 
-                style={styles.edit}
-              >
-                Edit
-              </button>
-              <button 
-                onClick={() => handleDelete(course._id)} 
-                style={styles.delete}
-              >
-                Delete
-              </button>
-            </div>
+            <>
+              <Link to={`/edit-course/${course._id}`} style={styles.edit}>✏️ Edit</Link>
+              <button onClick={() => handleDelete(course._id)} style={styles.delete}>🗑 Delete</button>
+            </>
           )}
         </div>
       ))}
@@ -60,28 +49,9 @@ function Courses() {
 }
 
 const styles = {
-  card: {
-    border: '1px solid #ddd',
-    padding: '15px',
-    marginBottom: '15px',
-    borderRadius: '5px',
-    backgroundColor: '#fafafa',
-  },
-  edit: {
-    background: 'blue',
-    color: 'white',
-    border: 'none',
-    padding: '5px 10px',
-    cursor: 'pointer',
-    marginRight: '10px'
-  },
-  delete: {
-    background: 'red',
-    color: 'white',
-    border: 'none',
-    padding: '5px 10px',
-    cursor: 'pointer'
-  }
+  card: { border: '1px solid #ddd', padding: '15px', marginBottom: '15px', borderRadius: '5px' },
+  edit: { marginRight: '10px', color: 'blue', textDecoration: 'none' },
+  delete: { background: 'red', color: 'white', border: 'none', padding: '5px 10px', cursor: 'pointer' }
 };
 
 export default Courses;
