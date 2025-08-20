@@ -1,16 +1,16 @@
 const jwt = require('jsonwebtoken');
 
-function authMiddleware(req, res, next) {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+module.exports = function (req, res, next) {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+
   if (!token) return res.status(401).json({ msg: 'No token, authorization denied' });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'defaultsecret');
-    req.user = decoded; // ✅ contains id and role
+    req.user = { id: decoded.id, role: decoded.role };
     next();
   } catch (err) {
-    res.status(401).json({ msg: 'Token is not valid' });
+    return res.status(401).json({ msg: 'Token is not valid' });
   }
-}
-
-module.exports = authMiddleware;
+};
