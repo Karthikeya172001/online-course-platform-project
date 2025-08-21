@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
-const courseSchema = new mongoose.Schema({
-  title: String,
-  description: String,
-  instructor: String,
+const CourseSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  instructor: { type: String, required: true }
 });
 
-export default mongoose.model("Course", courseSchema);
+module.exports = mongoose.model("Course", CourseSchema);
