@@ -1,46 +1,68 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import API from '../api';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
 function EditCourse() {
   const { id } = useParams();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [instructor, setInstructor] = useState("");
   const navigate = useNavigate();
-  const [form, setForm] = useState({ title: '', description: '' });
 
+  // fetch existing course details
   useEffect(() => {
-    API.get(`/courses/${id}`)
-      .then((res) => {
-        setForm({ title: res.data.title, description: res.data.description });
+    fetch(`http://localhost:5000/api/courses/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setTitle(data.title);
+        setDescription(data.description);
+        setInstructor(data.instructor);
       })
-      .catch((err) => {
-        console.error(err);
-        alert(err.response?.data?.msg || '❌ Error fetching course');
-      });
+      .catch((err) => console.error("Error fetching course:", err));
   }, [id]);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
+  // handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const token = localStorage.getItem('token');
-      await API.put(`/courses/${id}`, form, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      alert('✅ Course updated successfully!');
-      navigate('/courses');
-    } catch (err) {
-      alert(err.response?.data?.msg || '❌ Error updating course');
-    }
+
+    await fetch(`http://localhost:5000/api/courses/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, description, instructor }),
+    });
+
+    navigate("/courses"); // go back to courses page
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Edit Course</h1>
-      <input name="title" value={form.title} onChange={handleChange} required />
-      <input name="description" value={form.description} onChange={handleChange} required />
-      <button type="submit">Update Course</button>
-    </form>
+    <div>
+      <h2>Edit Course</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Course Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+        <br />
+        <textarea
+          placeholder="Course Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+        <br />
+        <input
+          type="text"
+          placeholder="Instructor Name"
+          value={instructor}
+          onChange={(e) => setInstructor(e.target.value)}
+          required
+        />
+        <br />
+        <button type="submit">Update Course</button>
+      </form>
+    </div>
   );
 }
 
