@@ -1,40 +1,37 @@
 // client/src/pages/Register.js
-import React, { useState } from 'react';
-import API from '../api';
+import React, { useState, useContext } from "react";
+import api from "../services/api";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
-  const [form, setForm] = useState({
-    username: '', // must match backend
-    email: '',
-    password: '',
-    role: 'student'
-  });
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await API.post('/auth/register', form);
-      alert('✅ User registered successfully!');
+      const res = await api.post("/auth/register", form);
+      login(res.data.token);
+      navigate("/courses");
     } catch (err) {
-      alert(err.response?.data?.msg || '❌ Error registering');
+      alert("Registration failed");
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input name="username" placeholder="Username" onChange={handleChange} required />
-      <input name="email" placeholder="Email" onChange={handleChange} required />
-      <input name="password" placeholder="Password" type="password" onChange={handleChange} required />
-      <select name="role" onChange={handleChange}>
-        <option value="student">Student</option>
-        <option value="instructor">Instructor</option>
-      </select>
+      <input name="name" placeholder="Name" onChange={handleChange} />
+      <input name="email" type="email" placeholder="Email" onChange={handleChange} />
+      <input name="password" type="password" placeholder="Password" onChange={handleChange} />
       <button type="submit">Register</button>
     </form>
   );
 }
 
 export default Register;
+
+
