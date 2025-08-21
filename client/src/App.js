@@ -1,24 +1,31 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Register from './pages/Register';
-import Login from './pages/Login';
-import Courses from './pages/Courses';
-import AddCourse from './pages/AddCourse';
-import EditCourse from './pages/EditCourse';
-import Navbar from './components/Navbar';
+import React from "react";
+import { Routes, Route, Link } from "react-router-dom";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import Courses from "./pages/Courses";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
-    <Router>
-      <Navbar />
+    <div>
+      <nav>
+        <Link to="/register">Register</Link> |{" "}
+        <Link to="/login">Login</Link> |{" "}
+        <Link to="/courses">Courses</Link>
+      </nav>
       <Routes>
-        <Route path="/" element={<Register />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/courses" element={<Courses />} />
-        <Route path="/add-course" element={<AddCourse />} />
-        <Route path="/edit-course/:id" element={<EditCourse />} />
+        <Route
+          path="/courses"
+          element={
+            <PrivateRoute>
+              <Courses />
+            </PrivateRoute>
+          }
+        />
       </Routes>
-    </Router>
+    </div>
   );
 }
 
