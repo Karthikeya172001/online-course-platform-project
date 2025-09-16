@@ -1,52 +1,48 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import API_BASE_URL from "../services/api";
+import getRole from "../utils/getRole";
 
 function Courses() {
   const [courses, setCourses] = useState([]);
-  const navigate = useNavigate();
+  const [form, setForm] = useState({ title: "", description: "" });
+  const role = getRole();
+  const token = localStorage.getItem("token");
 
-  // Fetch all courses
   useEffect(() => {
-    fetch("http://localhost:5000/api/courses")
-      .then((res) => res.json())
-      .then((data) => setCourses(data))
-      .catch((err) => console.error("Error fetching courses:", err));
+    axios.get(`${API_BASE_URL}/courses`).then(res => setCourses(res.data));
   }, []);
 
-  // Delete course
-  const handleDelete = async (id) => {
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleAddCourse = async (e) => {
+    e.preventDefault();
     try {
-      await fetch(`http://localhost:5000/api/courses/${id}`, {
-        method: "DELETE",
+      await axios.post(`${API_BASE_URL}/courses/add`, form, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      setCourses(courses.filter((course) => course._id !== id)); // update UI instantly
+      alert("Course added!");
     } catch (err) {
-      console.error("Delete failed:", err);
+      alert(err.response?.data?.error || "Failed to add course");
     }
   };
 
   return (
     <div>
-      <h2>Available Courses</h2>
-      {courses.map((course) => (
-        <div
-          key={course._id}
-          style={{
-            border: "1px solid #ccc",
-            margin: "10px",
-            padding: "10px",
-            borderRadius: "5px",
-          }}
-        >
-          <h3>{course.title}</h3>
-          <p>{course.description}</p>
-          <p>Instructor: {course.instructor || "Unknown"}</p>
-          <button onClick={() => navigate(`/edit-course/${course._id}`)}>
-            ✏️ Edit
-          </button>
-          <button onClick={() => handleDelete(course._id)}>🗑 Delete</button>
-        </div>
-      ))}
+      <h2>Courses</h2>
+      <ul>
+        {courses.map(c => (
+          <li key={c._id}>{c.title} - {c.instructor?.username}</li>
+        ))}
+      </ul>
+
+      {role === "instructor" && (
+        <form onSubmit={handleAddCourse}>
+          <input name="title" placeholder="Course title" onChange={handleChange} />
+          <input name="description" placeholder="Description" onChange={handleChange} />
+          <button type="submit">Add Course</button>
+        </form>
+      )}
     </div>
   );
 }
