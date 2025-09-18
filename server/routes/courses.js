@@ -1,41 +1,32 @@
 import express from "express";
-import jwt from "jsonwebtoken";
 import Course from "../models/Course.js";
-import authorizeRole from "../middleware/authorizeRole.js";
+import { authenticate, authorizeRole } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Auth middleware
-function authMiddleware(req, res, next) {
-  const token = req.headers["authorization"];
-  if (!token) return res.status(401).json({ error: "No token" });
-
+// ✅ Get all courses (any logged-in user can view)
+router.get("/", authenticate, async (req, res) => {
   try {
-    const decoded = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch {
-    res.status(401).json({ error: "Invalid token" });
-  }
-}
-
-// Get all courses
-router.get("/", async (req, res) => {
-  try {
-    const courses = await Course.find().populate("instructor", "username email");
-    res.json(courses);
+    const courses = await Course.find().populate("instructor", "username");
+    res.json(courses); // ✅ plain array, no { courses: [...] }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Add a course (instructors only)
-router.post("/add", authMiddleware, authorizeRole("instructor"), async (req, res) => {
+// ✅ Add a course (only instructors allowed)
+router.post("/add", authenticate, authorizeRole("instructor"), async (req, res) => {
   try {
     const { title, description } = req.body;
-    const newCourse = new Course({ title, description, instructor: req.user.id });
-    await newCourse.save();
-    res.json({ message: "Course added successfully" });
+
+    const course = new Course({
+      title,
+      description,
+      instructor: req.user.id, // comes from JWT
+    });
+
+    await course.save();
+    res.status(201).json(course);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
