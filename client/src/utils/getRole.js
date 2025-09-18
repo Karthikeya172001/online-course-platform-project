@@ -11,4 +11,3 @@ export default function getRole() {
     return null;
   }
 }
-
