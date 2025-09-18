@@ -1,13 +1,13 @@
 import jwtDecode from "jwt-decode";
 
 export default function getRole() {
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-
   try {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
     const decoded = jwtDecode(token);
-    return decoded.role;
-  } catch {
+    return decoded.role || null;
+  } catch (err) {
+    console.error("JWT decode error:", err);
     return null;
   }
 }
