@@ -1,103 +1,87 @@
-// client/src/pages/Courses.js
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import getRole from "../utils/getRole";
 
-export default function Courses() {
+function Courses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const role = getRole();
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchCourses = async () => {
-      setLoading(true);
-      setError(null);
       try {
-        // api.baseURL already ends with /api in our setup, so use '/courses'
         const res = await api.get("/courses");
-        console.log("GET /courses response:", res.data);
+        console.log("API /courses response:", res.data);
 
-        const data = res.data;
-
-        // Accept multiple shapes: plain array, { courses: [...] }, { data: [...] }
-        if (Array.isArray(data)) {
-          setCourses(data);
-        } else if (Array.isArray(data.courses)) {
-          setCourses(data.courses);
-        } else if (Array.isArray(data.data)) {
-          setCourses(data.data);
+        // ✅ Safely handle different shapes
+        if (Array.isArray(res.data)) {
+          setCourses(res.data);
+        } else if (Array.isArray(res.data.courses)) {
+          setCourses(res.data.courses);
         } else {
-          // If not an array, show the object so you can debug what's being returned
           setCourses([]);
-          setError(
-            "Unexpected response shape from API. See console for details. Response: " +
-              JSON.stringify(data)
-          );
+          setError("Unexpected response from API, see console for details.");
         }
       } catch (err) {
         console.error("Error fetching courses:", err);
-        // If axios error, try to get meaningful message:
-        const message =
-          err.response?.data?.error ||
-          err.response?.data?.message ||
-          err.message ||
-          "Failed to fetch courses";
-        setError(message);
+        setError("Failed to load courses");
+        setCourses([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchCourses();
-  }, [token]); // refetch if token changes
+  }, []);
 
   const [form, setForm] = useState({ title: "", description: "" });
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleAddCourse = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/courses/add", form); // auth header is added by api interceptor
+      await api.post("/courses/add", form);
       alert("Course added");
-      // refresh list
+
+      // refresh course list
       const res = await api.get("/courses");
-      const data = res.data;
-      setCourses(Array.isArray(data) ? data : data.courses ?? []);
+      if (Array.isArray(res.data)) {
+        setCourses(res.data);
+      } else if (Array.isArray(res.data.courses)) {
+        setCourses(res.data.courses);
+      }
+
       setForm({ title: "", description: "" });
     } catch (err) {
       console.error("Add course error:", err);
-      alert(err.response?.data?.error || err.message || "Failed to add course");
+      alert(err.response?.data?.error || "Failed to add course");
     }
   };
 
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: "20px" }}>
       <h2>Courses</h2>
 
       {loading && <p>Loading courses…</p>}
-
-      {error && (
-        <div style={{ color: "red", marginBottom: 12 }}>
-          <strong>Error:</strong> {error}
-        </div>
-      )}
-
+      {error && <p style={{ color: "red" }}>{error}</p>}
       {!loading && courses.length === 0 && !error && <p>No courses found.</p>}
 
       <ul>
         {Array.isArray(courses) &&
           courses.map((c) => (
             <li key={c._id || c.id}>
-              {c.title} — {c.instructor?.username ?? c.instructor?.name ?? "Unknown"}
+              {c.title} — {c.instructor?.username || "Unknown"}
             </li>
           ))}
       </ul>
 
       {role === "instructor" && (
         <form onSubmit={handleAddCourse} style={{ marginTop: 20 }}>
-          <h3>Add course</h3>
+          <h3>Add Course</h3>
           <input
             name="title"
             placeholder="Title"
@@ -121,3 +105,4 @@ export default function Courses() {
   );
 }
 
+export default Courses;
