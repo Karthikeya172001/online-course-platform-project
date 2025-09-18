@@ -11,22 +11,11 @@ function Courses() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await api.get("/courses");
-        console.log("API /courses response:", res.data);
-
-        // ✅ Safely handle different shapes
-        if (Array.isArray(res.data)) {
-          setCourses(res.data);
-        } else if (Array.isArray(res.data.courses)) {
-          setCourses(res.data.courses);
-        } else {
-          setCourses([]);
-          setError("Unexpected response from API, see console for details.");
-        }
+        const res = await api.get("/courses"); // ✅ backend always returns array
+        setCourses(res.data);
       } catch (err) {
         console.error("Error fetching courses:", err);
         setError("Failed to load courses");
-        setCourses([]);
       } finally {
         setLoading(false);
       }
@@ -47,13 +36,9 @@ function Courses() {
       await api.post("/courses/add", form);
       alert("Course added");
 
-      // refresh course list
+      // ✅ Refresh course list
       const res = await api.get("/courses");
-      if (Array.isArray(res.data)) {
-        setCourses(res.data);
-      } else if (Array.isArray(res.data.courses)) {
-        setCourses(res.data.courses);
-      }
+      setCourses(res.data);
 
       setForm({ title: "", description: "" });
     } catch (err) {
@@ -71,12 +56,11 @@ function Courses() {
       {!loading && courses.length === 0 && !error && <p>No courses found.</p>}
 
       <ul>
-        {Array.isArray(courses) &&
-          courses.map((c) => (
-            <li key={c._id || c.id}>
-              {c.title} — {c.instructor?.username || "Unknown"}
-            </li>
-          ))}
+        {courses.map((c) => (
+          <li key={c._id || c.id}>
+            {c.title} — {c.instructor?.username || "Unknown"}
+          </li>
+        ))}
       </ul>
 
       {role === "instructor" && (
