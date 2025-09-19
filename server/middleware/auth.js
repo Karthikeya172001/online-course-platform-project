@@ -1,28 +1,30 @@
-// server/middleware/auth.js
 import jwt from "jsonwebtoken";
 
-// ✅ Middleware to check if user is logged in
-export function authenticate(req, res, next) {
-  const token = req.headers["authorization"]?.split(" ")[1]; // Bearer <token>
-  if (!token) {
+export const authenticate = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) {
     return res.status(401).json({ error: "No token provided" });
+  }
+
+  const token = authHeader.split(" ")[1]; // "Bearer <token>"
+  if (!token) {
+    return res.status(401).json({ error: "Token missing" });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // attach user payload (id, role) to request
+    req.user = decoded; // ✅ store user info from token
     next();
   } catch (err) {
-    return res.status(403).json({ error: "Invalid or expired token" });
+    return res.status(403).json({ error: "Invalid token" });
   }
-}
+};
 
-// ✅ Middleware to restrict routes by role
-export function authorizeRole(role) {
+export const authorizeRole = (role) => {
   return (req, res, next) => {
     if (!req.user || req.user.role !== role) {
-      return res.status(403).json({ error: "Forbidden: insufficient role" });
+      return res.status(403).json({ error: "Access denied" });
     }
     next();
   };
-}
+};
