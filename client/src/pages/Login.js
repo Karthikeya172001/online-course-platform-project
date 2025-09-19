@@ -1,31 +1,57 @@
 import React, { useState } from "react";
 import axios from "axios";
-import API_BASE_URL from "../services/api";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/login`, form);
+      const res = await axios.post(
+        "https://online-course-platform-project-backend.onrender.com/api/auth/login",
+        form
+      );
+      // ✅ Save token
       localStorage.setItem("token", res.data.token);
+
       navigate("/courses");
     } catch (err) {
-      alert(err.response?.data?.error || "Login failed");
+      console.error("Login error:", err.response?.data || err.message);
+      setError(err.response?.data?.error || "Login failed");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="email" placeholder="Email" onChange={handleChange} />
-      <input type="password" name="password" placeholder="Password" onChange={handleChange} />
-      <button type="submit">Login</button>
-    </form>
+    <div>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          required
+        />
+        <button type="submit">Login</button>
+      </form>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+    </div>
   );
 }
 
