@@ -1,27 +1,28 @@
+// client/src/pages/AddCourse.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 function AddCourse() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [instructor, setInstructor] = useState("");
-  const navigate = useNavigate();
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    await fetch("http://localhost:5000/api/courses", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description, instructor }),
-    });
-
-    navigate("/courses"); // go back to courses page after adding
+    try {
+      const res = await api.post("/courses", { title, description });
+      setMessage(`✅ Course created: ${res.data.title}`);
+      setTitle("");
+      setDescription("");
+    } catch (err) {
+      console.error(err);
+      setMessage("❌ Failed to create course");
+    }
   };
 
   return (
     <div>
-      <h2>Add New Course</h2>
+      <h2>Add Course</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -32,22 +33,15 @@ function AddCourse() {
         />
         <br />
         <textarea
-          placeholder="Course Description"
+          placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
         />
         <br />
-        <input
-          type="text"
-          placeholder="Instructor Name"
-          value={instructor}
-          onChange={(e) => setInstructor(e.target.value)}
-          required
-        />
-        <br />
         <button type="submit">Add Course</button>
       </form>
+      {message && <p>{message}</p>}
     </div>
   );
 }
