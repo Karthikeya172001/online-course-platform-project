@@ -1,11 +1,20 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import getRole from "../utils/getRole"; // ✅ Import role decoder
+import jwtDecode from "jwt-decode";
 
 function Navbar() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const role = getRole(); // ✅ Get user role from token
+  let role = null;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      role = decoded.role;
+    } catch (err) {
+      console.error("Invalid token in Navbar:", err);
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -45,25 +54,10 @@ const styles = {
     background: "#333",
     color: "#fff",
   },
-  logo: {
-    margin: 0,
-  },
-  menu: {
-    display: "flex",
-    gap: "15px",
-  },
-  link: {
-    color: "#fff",
-    textDecoration: "none",
-  },
-  logout: {
-    background: "red",
-    color: "white",
-    border: "none",
-    padding: "5px 10px",
-    cursor: "pointer",
-    borderRadius: "4px",
-  },
+  logo: { margin: 0 },
+  menu: { display: "flex", gap: "15px" },
+  link: { color: "#fff", textDecoration: "none" },
+  logout: { marginLeft: "15px", background: "red", color: "#fff", border: "none", padding: "5px 10px", cursor: "pointer" }
 };
 
 export default Navbar;
