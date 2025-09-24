@@ -1,27 +1,26 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 function Login() {
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     try {
-      const res = await axios.post(
-        "https://online-course-platform-project-backend.onrender.com/api/auth/login",
-        form
-      );
-      // ✅ Save token
-      localStorage.setItem("token", res.data.token);
+      const res = await api.post("/auth/login", { email, password });
+      const { token } = res.data;
 
-      navigate("/courses");
+      if (token) {
+        localStorage.setItem("token", token); // ✅ save token
+        navigate("/courses");
+      } else {
+        setError("No token received from server");
+      }
     } catch (err) {
       console.error("Login error:", err.response?.data || err.message);
       setError(err.response?.data?.error || "Login failed");
@@ -29,23 +28,21 @@ function Login() {
   };
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "300px" }}>
         <input
           type="email"
-          name="email"
           placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
         <input
           type="password"
-          name="password"
           placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
         <button type="submit">Login</button>
