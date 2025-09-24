@@ -17,7 +17,7 @@ function App() {
         <Route path="/" element={<Register />} />
         <Route path="/login" element={<Login />} />
 
-        {/* Protected routes */}
+        {/* Protected: any logged-in user */}
         <Route
           path="/courses"
           element={
@@ -27,6 +27,7 @@ function App() {
           }
         />
 
+        {/* Protected: instructors only */}
         <Route
           path="/add-course"
           element={
