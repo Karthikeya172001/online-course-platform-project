@@ -5,29 +5,28 @@ import { authenticate, authorizeRole } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// ✅ Get all courses (populate instructor details)
+// Get all courses
 router.get("/", authenticate, async (req, res) => {
   try {
-    const courses = await Course.find().populate("instructor", "username email");
-    res.json(courses);
+    const courses = await Course.find().populate("instructor", "username");
+    res.json(courses); // ✅ send array directly
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Failed to fetch courses" });
   }
 });
 
-// ✅ Add a new course (only instructors)
+// Add a new course
 router.post("/", authenticate, authorizeRole("instructor"), async (req, res) => {
   try {
-    const { title, description } = req.body;
-    const course = new Course({
-      title,
-      description,
-      instructor: req.user.id, // store instructor id from token
+    const newCourse = new Course({
+      title: req.body.title,
+      description: req.body.description,
+      instructor: req.user.id,
     });
-    await course.save();
-    res.status(201).json(course);
+    const saved = await newCourse.save();
+    res.json(saved);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Failed to create course" });
   }
 });
 
