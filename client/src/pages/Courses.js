@@ -1,5 +1,6 @@
+// client/src/pages/Courses.js
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 
 function Courses() {
   const [courses, setCourses] = useState([]);
@@ -9,19 +10,19 @@ function Courses() {
     const fetchCourses = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(
-          `${process.env.REACT_APP_API_URL || "https://online-course-platform-project-backend.onrender.com"}/api/courses`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        setCourses(res.data);
+        if (!token) {
+          setError("No token found. Please login again.");
+          return;
+        }
+
+        const res = await api.get("/api/courses", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCourses(res.data || []);
       } catch (err) {
-        console.error(err);
-        setError("Failed to load courses");
+        setError(err.response?.data?.error || "Failed to load courses");
       }
     };
-
     fetchCourses();
   }, []);
 
@@ -30,10 +31,10 @@ function Courses() {
       <h2>Courses</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <ul>
-        {Array.isArray(courses) && courses.length > 0 ? (
+        {courses.length > 0 ? (
           courses.map((c) => (
             <li key={c._id}>
-              {c.title} – {c.instructor?.username || "Unknown Instructor"}
+              {c.title} - {c.instructor?.username || "Unknown"}
             </li>
           ))
         ) : (
