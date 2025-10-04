@@ -36,6 +36,9 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        {/* Catch-all fallback */}
+        <Route path="*" element={<p>404 Not Found</p>} />
       </Routes>
     </Router>
   );
