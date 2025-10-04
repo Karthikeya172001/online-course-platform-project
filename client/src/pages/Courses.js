@@ -2,26 +2,32 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 function Courses() {
-  const [courses, setCourses] = useState([]);  // ✅ always starts as array
+  const [courses, setCourses] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         const token = localStorage.getItem("token");
+
+        if (!token) {
+          setError("No token found. Please login again.");
+          return;
+        }
+
         const res = await axios.get(
           "https://online-course-platform-project-backend.onrender.com/api/courses",
-          { headers: { Authorization: `Bearer ${token}` } }
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
         );
 
-        // ✅ Normalize data: handle array OR object
-        const data = res.data;
-        if (Array.isArray(data)) {
-          setCourses(data);
-        } else if (Array.isArray(data.courses)) {
-          setCourses(data.courses);
+        if (Array.isArray(res.data)) {
+          setCourses(res.data);
         } else {
-          setCourses([]); // fallback
+          console.error("Unexpected response:", res.data);
+          setCourses([]);
+          setError("Invalid data format from server.");
         }
       } catch (err) {
         console.error("Error fetching courses:", err);
@@ -35,10 +41,10 @@ function Courses() {
   return (
     <div>
       <h2>Courses</h2>
-      {error && <p>{error}</p>}
-      {courses.length === 0 ? (
-        <p>No courses available</p>
-      ) : (
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {Array.isArray(courses) && courses.length > 0 ? (
         <ul>
           {courses.map((course) => (
             <li key={course._id}>
@@ -46,6 +52,8 @@ function Courses() {
             </li>
           ))}
         </ul>
+      ) : (
+        !error && <p>No courses available</p>
       )}
     </div>
   );
