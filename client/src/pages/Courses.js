@@ -1,46 +1,52 @@
-// client/src/pages/Courses.js
 import React, { useEffect, useState } from "react";
-import api from "../services/api";
+import axios from "axios";
 
 function Courses() {
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState([]);  // ✅ always starts as array
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          setError("No token found. Please login again.");
-          return;
-        }
+        const res = await axios.get(
+          "https://online-course-platform-project-backend.onrender.com/api/courses",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
-        const res = await api.get("/api/courses", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setCourses(res.data || []);
+        // ✅ Normalize data: handle array OR object
+        const data = res.data;
+        if (Array.isArray(data)) {
+          setCourses(data);
+        } else if (Array.isArray(data.courses)) {
+          setCourses(data.courses);
+        } else {
+          setCourses([]); // fallback
+        }
       } catch (err) {
-        setError(err.response?.data?.error || "Failed to load courses");
+        console.error("Error fetching courses:", err);
+        setError("Failed to load courses");
       }
     };
+
     fetchCourses();
   }, []);
 
   return (
     <div>
       <h2>Courses</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <ul>
-        {courses.length > 0 ? (
-          courses.map((c) => (
-            <li key={c._id}>
-              {c.title} - {c.instructor?.username || "Unknown"}
+      {error && <p>{error}</p>}
+      {courses.length === 0 ? (
+        <p>No courses available</p>
+      ) : (
+        <ul>
+          {courses.map((course) => (
+            <li key={course._id}>
+              {course.title} – {course.instructor?.username || "Unknown"}
             </li>
-          ))
-        ) : (
-          <p>No courses available</p>
-        )}
-      </ul>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
