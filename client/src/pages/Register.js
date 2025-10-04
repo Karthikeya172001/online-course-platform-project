@@ -1,33 +1,75 @@
 import React, { useState } from "react";
 import axios from "axios";
-import API_BASE_URL from "../services/api";
 
 function Register() {
-  const [form, setForm] = useState({ username: "", email: "", password: "", role: "student" });
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    role: "student", // default role
+  });
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      await axios.post(`${API_BASE_URL}/auth/register`, form);
-      alert("Registration successful!");
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/auth/register`,
+        formData
+      );
+      setMessage(res.data.message || "Registration successful! You can now login.");
     } catch (err) {
-      alert(err.response?.data?.error || "Registration failed");
+      console.error(err);
+      setMessage(err.response?.data?.error || "Registration failed.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="username" placeholder="Username" onChange={handleChange} />
-      <input name="email" placeholder="Email" onChange={handleChange} />
-      <input type="password" name="password" placeholder="Password" onChange={handleChange} />
-      <select name="role" onChange={handleChange}>
-        <option value="student">Student</option>
-        <option value="instructor">Instructor</option>
-      </select>
-      <button type="submit">Register</button>
-    </form>
+    <div style={{ padding: "20px" }}>
+      <h2>Register</h2>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "400px" }}>
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={formData.username}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+
+        <select name="role" value={formData.role} onChange={handleChange}>
+          <option value="student">Student</option>
+          <option value="instructor">Instructor</option>
+        </select>
+
+        <button type="submit">Register</button>
+      </form>
+      {message && <p style={{ marginTop: "10px" }}>{message}</p>}
+    </div>
   );
 }
 
