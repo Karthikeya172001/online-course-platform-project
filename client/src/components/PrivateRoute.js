@@ -11,15 +11,18 @@ function PrivateRoute({ children, role }) {
 
   try {
     const decoded = jwtDecode(token);
+
     if (role && decoded.role !== role) {
+      // redirect students if they try to access instructor-only route
       return <Navigate to="/courses" replace />;
     }
+
+    return children;
   } catch (err) {
-    console.error("Invalid token", err);
+    console.error("PrivateRoute decode error:", err);
+    localStorage.removeItem("token");
     return <Navigate to="/login" replace />;
   }
-
-  return children;
 }
 
 export default PrivateRoute;
