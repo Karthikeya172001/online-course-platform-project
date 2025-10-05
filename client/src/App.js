@@ -1,12 +1,12 @@
 import React from "react";
-import ErrorBoundary from "./components/ErrorBoundary";   // ✅ import the one I gave you
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ErrorBoundary from "./components/ErrorBoundary";
+import Navbar from "./components/Navbar";
+import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Courses from "./pages/Courses";
 import AddCourse from "./pages/AddCourse";
-import PrivateRoute from "./components/PrivateRoute";
-import Navbar from "./components/Navbar";
 
 function App() {
   return (
