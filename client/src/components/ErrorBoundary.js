@@ -1,4 +1,3 @@
-// client/src/components/ErrorBoundary.js
 import React from "react";
 
 class ErrorBoundary extends React.Component {
@@ -21,8 +20,8 @@ class ErrorBoundary extends React.Component {
       return (
         <div style={{ padding: 20 }}>
           <h2 style={{ color: "red" }}>⚠ Something went wrong. Please refresh.</h2>
-          <h4 style={{ color: "#333" }}>{this.state.error?.toString()}</h4>
-          <details style={{ whiteSpace: "pre-wrap", background: "#f6f6f6", padding: 10, marginTop: 10 }}>
+          <p>{this.state.error?.toString()}</p>
+          <details style={{ whiteSpace: "pre-wrap" }}>
             {this.state.info?.componentStack || "No stack available"}
           </details>
         </div>
