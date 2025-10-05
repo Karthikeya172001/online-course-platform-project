@@ -1,22 +1,32 @@
+// client/src/components/ErrorBoundary.js
 import React from "react";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, error: null, info: null };
   }
 
-  static getDerivedStateFromError() {
-    return { hasError: true };
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
   }
 
-  componentDidCatch(error, errorInfo) {
-    console.error("ErrorBoundary caught:", error, errorInfo);
+  componentDidCatch(error, info) {
+    console.error("ErrorBoundary caught:", error, info);
+    this.setState({ info });
   }
 
   render() {
     if (this.state.hasError) {
-      return <h2>⚠ Something went wrong. Please refresh.</h2>;
+      return (
+        <div style={{ padding: 20 }}>
+          <h2 style={{ color: "red" }}>⚠ Something went wrong. Please refresh.</h2>
+          <h4 style={{ color: "#333" }}>{this.state.error?.toString()}</h4>
+          <details style={{ whiteSpace: "pre-wrap", background: "#f6f6f6", padding: 10, marginTop: 10 }}>
+            {this.state.info?.componentStack || "No stack available"}
+          </details>
+        </div>
+      );
     }
     return this.props.children;
   }
