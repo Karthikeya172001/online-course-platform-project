@@ -1,62 +1,40 @@
+// client/src/pages/Courses.js
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 
-function Courses() {
+export default function Courses() {
   const [courses, setCourses] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          setError("No token found. Please login again.");
-          return;
-        }
-
-        const res = await axios.get(
-          "https://online-course-platform-project-backend.onrender.com/api/courses",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        if (Array.isArray(res.data)) {
-          setCourses(res.data);
-        } else {
-          console.error("Unexpected response:", res.data);
+        const res = await api.get("/courses");
+        console.log("DEBUG /courses response:", res.status, res.data);
+        const d = res.data;
+        if (Array.isArray(d)) setCourses(d);
+        else if (Array.isArray(d.courses)) setCourses(d.courses);
+        else {
           setCourses([]);
-          setError("Invalid data format from server.");
+          setError("Unexpected server response (see console).");
+          console.warn("Unexpected /courses shape:", d);
         }
       } catch (err) {
-        console.error("Error fetching courses:", err);
-        setError("Failed to load courses");
+        console.error("Fetch /courses error:", err.response?.data || err.message);
+        setError(err.response?.data?.error || "Failed to load courses");
+        setCourses([]);
       }
     };
-
     fetchCourses();
   }, []);
 
   return (
-    <div>
+    <div style={{ padding: 16 }}>
       <h2>Courses</h2>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {Array.isArray(courses) && courses.length > 0 ? (
-        <ul>
-          {courses.map((course) => (
-            <li key={course._id}>
-              {course.title} – {course.instructor?.username || "Unknown"}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        !error && <p>No courses available</p>
+      {error && <div style={{ color: "red" }}>{error}</div>}
+      {courses.length === 0 ? <p>No courses available</p> : (
+        <ul>{courses.map(c => <li key={c._id || c.id}>{c.title} — {c.instructor?.username || "Unknown"}</li>)}</ul>
       )}
     </div>
   );
 }
-
-export default Courses;
