@@ -1,32 +1,34 @@
-// server/routes/courses.js
 import express from "express";
 import Course from "../models/Course.js";
 import { authenticate, authorizeRole } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Get all courses
+// GET all courses
 router.get("/", authenticate, async (req, res) => {
   try {
-    const courses = await Course.find().populate("instructor", "username");
-    res.json(courses); // ✅ send array directly
+    const courses = await Course.find().populate("instructor", "username email");
+    res.json(courses); // ✅ Always return an array
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch courses" });
+    console.error("Error fetching courses:", err);
+    res.status(500).json({ error: "Failed to load courses" });
   }
 });
 
-// Add a new course
+// POST add a new course (only instructor)
 router.post("/", authenticate, authorizeRole("instructor"), async (req, res) => {
   try {
-    const newCourse = new Course({
-      title: req.body.title,
-      description: req.body.description,
+    const { title, description } = req.body;
+    const course = new Course({
+      title,
+      description,
       instructor: req.user.id,
     });
-    const saved = await newCourse.save();
-    res.json(saved);
+    await course.save();
+    res.json({ message: "Course added successfully", course });
   } catch (err) {
-    res.status(500).json({ error: "Failed to create course" });
+    console.error("Error adding course:", err);
+    res.status(500).json({ error: "Failed to add course" });
   }
 });
 
