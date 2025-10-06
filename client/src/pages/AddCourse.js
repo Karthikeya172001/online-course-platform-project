@@ -1,48 +1,45 @@
-// client/src/pages/AddCourse.js
 import React, { useState } from "react";
-import api from "../services/api";
+import axios from "axios";
 
 function AddCourse() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/courses", { title, description });
-      setMessage(`✅ Course created: ${res.data.title}`);
+      const token = localStorage.getItem("token");
+      await axios.post(
+        "https://online-course-platform-project-backend.onrender.com/api/courses",
+        { title, description },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("Course added successfully!");
       setTitle("");
       setDescription("");
     } catch (err) {
-      console.error(err);
-      setMessage("❌ Failed to create course");
+      alert("Failed to add course.");
     }
   };
 
   return (
-    <div>
+    <form onSubmit={handleSubmit}>
       <h2>Add Course</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Course Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <br />
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-        <br />
-        <button type="submit">Add Course</button>
-      </form>
-      {message && <p>{message}</p>}
-    </div>
+      <input
+        type="text"
+        placeholder="Course Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        required
+      /><br />
+      <textarea
+        placeholder="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        required
+      /><br />
+      <button type="submit">Add Course</button>
+    </form>
   );
 }
 
