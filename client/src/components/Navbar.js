@@ -1,20 +1,11 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import jwtDecode from "jwt-decode";
+import getRole from "../utils/getRole";
 
 function Navbar() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  let role = null;
-
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-      role = decoded.role;
-    } catch (err) {
-      console.error("Invalid token in Navbar:", err);
-    }
-  }
+  const role = getRole();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -24,23 +15,21 @@ function Navbar() {
   return (
     <nav style={styles.nav}>
       <h2 style={styles.logo}>Online Course Platform</h2>
-      <div style={styles.menu}>
+      <ul style={styles.menu}>
         {!token && (
           <>
-            <Link to="/" style={styles.link}>Register</Link>
-            <Link to="/login" style={styles.link}>Login</Link>
+            <li><Link to="/">Register</Link></li>
+            <li><Link to="/login">Login</Link></li>
           </>
         )}
         {token && (
           <>
-            <Link to="/courses" style={styles.link}>Courses</Link>
-            {role === "instructor" && (
-              <Link to="/add-course" style={styles.link}>Add Course</Link>
-            )}
-            <button onClick={handleLogout} style={styles.logout}>Logout</button>
+            <li><Link to="/courses">Courses</Link></li>
+            {role === "instructor" && <li><Link to="/add-course">Add Course</Link></li>}
+            <li><button onClick={handleLogout} style={styles.logout}>Logout</button></li>
           </>
         )}
-      </div>
+      </ul>
     </nav>
   );
 }
@@ -55,9 +44,19 @@ const styles = {
     color: "#fff",
   },
   logo: { margin: 0 },
-  menu: { display: "flex", gap: "15px" },
-  link: { color: "#fff", textDecoration: "none" },
-  logout: { marginLeft: "15px", background: "red", color: "#fff", border: "none", padding: "5px 10px", cursor: "pointer" }
+  menu: {
+    listStyle: "none",
+    display: "flex",
+    gap: "15px",
+    margin: 0,
+    padding: 0,
+  },
+  logout: {
+    background: "transparent",
+    border: "1px solid #fff",
+    color: "#fff",
+    cursor: "pointer",
+  },
 };
 
 export default Navbar;
