@@ -1,62 +1,32 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import getRole from "../utils/getRole";
 
-function Navbar() {
+export default function Navbar() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const role = getRole();
 
-  const handleLogout = () => {
+  const logout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
 
   return (
-    <nav style={styles.nav}>
-      <h2 style={styles.logo}>Online Course Platform</h2>
-      <ul style={styles.menu}>
-        {!token && (
+    <nav style={{ display: "flex", justifyContent: "space-between", padding: 12, background: "#222", color: "#fff" }}>
+      <div><strong>Online Course Platform</strong></div>
+      <div style={{ display: "flex", gap: 12 }}>
+        {!token ? (
           <>
-            <li><Link to="/">Register</Link></li>
-            <li><Link to="/login">Login</Link></li>
+            <Link to="/" style={{ color: "#fff" }}>Register</Link>
+            <Link to="/login" style={{ color: "#fff" }}>Login</Link>
+          </>
+        ) : (
+          <>
+            <Link to="/courses" style={{ color: "#fff" }}>Courses</Link>
+            <Link to="/add-course" style={{ color: "#fff" }}>Add Course</Link>
+            <button onClick={logout} style={{ background: "transparent", color: "#fff", border: "1px solid #fff", padding: "4px 8px" }}>Logout</button>
           </>
         )}
-        {token && (
-          <>
-            <li><Link to="/courses">Courses</Link></li>
-            {role === "instructor" && <li><Link to="/add-course">Add Course</Link></li>}
-            <li><button onClick={handleLogout} style={styles.logout}>Logout</button></li>
-          </>
-        )}
-      </ul>
+      </div>
     </nav>
   );
 }
-
-const styles = {
-  nav: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "10px 20px",
-    background: "#333",
-    color: "#fff",
-  },
-  logo: { margin: 0 },
-  menu: {
-    listStyle: "none",
-    display: "flex",
-    gap: "15px",
-    margin: 0,
-    padding: 0,
-  },
-  logout: {
-    background: "transparent",
-    border: "1px solid #fff",
-    color: "#fff",
-    cursor: "pointer",
-  },
-};
-
-export default Navbar;
