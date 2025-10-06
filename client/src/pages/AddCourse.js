@@ -1,46 +1,32 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 
-function AddCourse() {
+export default function AddCourse() {
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [desc, setDesc] = useState("");
+  const [msg, setMsg] = useState("");
 
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(
-        "https://online-course-platform-project-backend.onrender.com/api/courses",
-        { title, description },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert("Course added successfully!");
-      setTitle("");
-      setDescription("");
+      const res = await api.post("/courses", { title, description: desc });
+      setMsg(res.data?.message || "Course added");
+      setTitle(""); setDesc("");
     } catch (err) {
-      alert("Failed to add course.");
+      console.error(err);
+      setMsg(err.response?.data?.error || "Failed to add course");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div>
       <h2>Add Course</h2>
-      <input
-        type="text"
-        placeholder="Course Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        required
-      /><br />
-      <textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        required
-      /><br />
-      <button type="submit">Add Course</button>
-    </form>
+      <form onSubmit={submit}>
+        <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" required /><br />
+        <textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="Description" required /><br />
+        <button type="submit">Add Course</button>
+      </form>
+      {msg && <p>{msg}</p>}
+    </div>
   );
 }
-
-export default AddCourse;
