@@ -20,13 +20,14 @@ class ErrorBoundary extends React.Component {
       return (
         <div style={{ padding: 20 }}>
           <h2 style={{ color: "red" }}>⚠ Something went wrong. Please refresh.</h2>
-          <p>{this.state.error?.toString()}</p>
+          <pre style={{ whiteSpace: "pre-wrap" }}>{String(this.state.error)}</pre>
           <details style={{ whiteSpace: "pre-wrap" }}>
             {this.state.info?.componentStack || "No stack available"}
           </details>
         </div>
       );
     }
+
     return this.props.children;
   }
 }
