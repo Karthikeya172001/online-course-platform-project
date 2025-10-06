@@ -1,46 +1,39 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 
-function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+export default function Login() {
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [err, setErr] = useState("");
+  const nav = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const submit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        "https://online-course-platform-project-backend.onrender.com/api/auth/login",
-        { email, password }
-      );
-      localStorage.setItem("token", res.data.token);
-      navigate("/courses");
-    } catch (err) {
-      alert("Login failed. Please check your credentials.");
+      const res = await api.post("/auth/login", form);
+      if (res.data?.token) {
+        localStorage.setItem("token", res.data.token);
+        setErr("");
+        nav("/courses");
+      } else {
+        setErr("No token received");
+      }
+    } catch (error) {
+      setErr(error.response?.data?.error || "Login failed");
     }
   };
 
   return (
-    <form onSubmit={handleLogin}>
+    <div>
       <h2>Login</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      /><br />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      /><br />
-      <button type="submit">Login</button>
-    </form>
+      {err && <p style={{ color: "red" }}>{err}</p>}
+      <form onSubmit={submit}>
+        <input name="email" placeholder="Email" value={form.email} onChange={handle} required /><br />
+        <input name="password" placeholder="Password" type="password" value={form.password} onChange={handle} required /><br />
+        <button type="submit">Login</button>
+      </form>
+    </div>
   );
 }
-
-export default Login;
