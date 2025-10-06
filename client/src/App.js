@@ -1,18 +1,17 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ErrorBoundary from "./components/ErrorBoundary";
-import Navbar from "./components/Navbar";
-import PrivateRoute from "./components/PrivateRoute";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Courses from "./pages/Courses";
 import AddCourse from "./pages/AddCourse";
+import Navbar from "./components/Navbar";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
-    <ErrorBoundary>
-      <BrowserRouter>
-        <Navbar />
+    <Router>
+      <Navbar />
+      <div style={{ padding: "20px" }}>
         <Routes>
           <Route path="/" element={<Register />} />
           <Route path="/login" element={<Login />} />
@@ -27,14 +26,14 @@ function App() {
           <Route
             path="/add-course"
             element={
-              <PrivateRoute role="instructor">
+              <PrivateRoute>
                 <AddCourse />
               </PrivateRoute>
             }
           />
         </Routes>
-      </BrowserRouter>
-    </ErrorBoundary>
+      </div>
+    </Router>
   );
 }
 
