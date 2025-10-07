@@ -1,34 +1,65 @@
 import React, { useEffect, useState } from "react";
-import api from "../services/api";
+import axios from "axios";
 
-export default function Courses() {
+function Courses() {
   const [courses, setCourses] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    (async () => {
+    const fetchCourses = async () => {
       try {
-        const res = await api.get("/courses");
-        // normalize
-        if (Array.isArray(res.data)) setCourses(res.data);
-        else if (Array.isArray(res.data.courses)) setCourses(res.data.courses);
-        else setCourses([]);
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("Please login to view courses.");
+          return;
+        }
+
+        const res = await axios.get(
+          "https://online-course-platform-project-backend.onrender.com/api/courses",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (Array.isArray(res.data)) {
+          setCourses(res.data);
+        } else {
+          setCourses([]);
+          setError("No courses available.");
+        }
       } catch (err) {
-        console.error("Courses fetch error:", err.response?.data || err.message);
-        setError(err.response?.data?.error || "Failed to load courses");
+        setError("Failed to load courses");
       }
-    })();
+    };
+
+    fetchCourses();
   }, []);
 
   return (
-    <div>
+    <div style={styles.container}>
       <h2>Courses</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {courses.length === 0 ? (
-        <p>No courses available</p>
+      {courses.length > 0 ? (
+        <ul>
+          {courses.map((course) => (
+            <li key={course._id}>
+              {course.title}{" "}
+              {course.instructor && `- ${course.instructor.username}`}
+            </li>
+          ))}
+        </ul>
       ) : (
-        <ul>{courses.map(c => <li key={c._id || c.id}>{c.title} — {c.instructor?.username || "Unknown"}</li>)}</ul>
+        <p>No courses available</p>
       )}
     </div>
   );
 }
+
+const styles = {
+  container: {
+    textAlign: "center",
+    marginTop: "50px",
+  },
+};
+
+export default Courses;
