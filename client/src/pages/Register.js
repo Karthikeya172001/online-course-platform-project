@@ -1,36 +1,68 @@
 import React, { useState } from "react";
-import api from "../services/api";
+import axios from "axios";
 
-export default function Register() {
-  const [form, setForm] = useState({ username: "", email: "", password: "", role: "student" });
-  const [msg, setMsg] = useState("");
+function Register() {
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+    role: "Student",
+  });
+  const [error, setError] = useState("");
 
-  const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-  const submit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/auth/register", form);
-      setMsg(res.data.message || "Registered. Please login.");
+      const res = await axios.post(
+        "https://online-course-platform-project-backend.onrender.com/api/auth/register",
+        form
+      );
+      alert("Registration successful! You can now login.");
+      console.log(res.data);
     } catch (err) {
-      setMsg(err.response?.data?.error || "Registration failed");
+      console.error(err);
+      setError("Registration failed");
     }
   };
 
   return (
     <div>
       <h2>Register</h2>
-      <form onSubmit={submit}>
-        <input name="username" placeholder="Username" value={form.username} onChange={handle} required /><br />
-        <input name="email" placeholder="Email" value={form.email} onChange={handle} required /><br />
-        <input name="password" placeholder="Password" type="password" value={form.password} onChange={handle} required /><br />
-        <select name="role" value={form.role} onChange={handle}>
-          <option value="student">Student</option>
-          <option value="instructor">Instructor</option>
-        </select><br />
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={form.username}
+          onChange={handleChange}
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+        />
+        <select name="role" value={form.role} onChange={handleChange}>
+          <option value="Student">Student</option>
+          <option value="Instructor">Instructor</option>
+        </select>
         <button type="submit">Register</button>
       </form>
-      {msg && <p>{msg}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 }
+
+export default Register;
