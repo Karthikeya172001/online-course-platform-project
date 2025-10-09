@@ -1,63 +1,76 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import getRole from "../utils/getRole";
 
-function Courses() {
-  const [courses, setCourses] = useState([]);
+function AddCourse() {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
+  const token = localStorage.getItem("token");
+  const role = getRole();
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      const token = localStorage.getItem("token");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      if (!token) {
-        setMessage("You must be logged in to view courses.");
-        return;
-      }
+    if (role !== "instructor") {
+      setMessage("❌ Only instructors can add courses.");
+      return;
+    }
 
-      try {
-        const res = await axios.get(
-          "https://online-course-platform-project-backend.onrender.com/api/courses",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        // Ensure we got an array
-        if (Array.isArray(res.data)) {
-          setCourses(res.data);
-        } else if (res.data.courses && Array.isArray(res.data.courses)) {
-          setCourses(res.data.courses);
-        } else {
-          setMessage("No courses available");
+    try {
+      const res = await axios.post(
+        "https://online-course-platform-project-backend.onrender.com/api/courses/add",
+        { title, description },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      } catch (err) {
-        console.error("Error fetching courses:", err);
-        setMessage("Failed to load courses");
-      }
-    };
+      );
 
-    fetchCourses();
-  }, []);
+      if (res.data && res.data._id) {
+        setMessage("✅ Course added successfully!");
+        setTitle("");
+        setDescription("");
+      } else {
+        setMessage("❌ Failed to add course. Try again.");
+      }
+    } catch (err) {
+      console.error("Error adding course:", err);
+      setMessage("❌ Failed to add course.");
+    }
+  };
 
   return (
     <div style={styles.container}>
-      <h2>Courses</h2>
+      <h2>Add New Course</h2>
+
+      {role !== "instructor" ? (
+        <p>⚠️ You must be logged in as an instructor to add a course.</p>
+      ) : (
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <input
+            type="text"
+            placeholder="Course Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            style={styles.input}
+          />
+          <textarea
+            placeholder="Course Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+            style={styles.textarea}
+          />
+          <button type="submit" style={styles.button}>
+            Add Course
+          </button>
+        </form>
+      )}
 
       {message && <p>{message}</p>}
-
-      {courses.length > 0 ? (
-        <ul style={styles.list}>
-          {courses.map((course) => (
-            <li key={course._id} style={styles.item}>
-              <strong>{course.title}</strong> —{" "}
-              {course.instructor ? course.instructor.username : "Unknown"}
-              <p>{course.description}</p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        !message && <p>No courses available.</p>
-      )}
     </div>
   );
 }
@@ -67,18 +80,31 @@ const styles = {
     textAlign: "center",
     marginTop: "40px",
   },
-  list: {
-    listStyle: "none",
-    padding: 0,
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "10px",
   },
-  item: {
-    background: "#f9f9f9",
-    margin: "10px auto",
+  input: {
+    width: "300px",
     padding: "10px",
-    maxWidth: "400px",
-    borderRadius: "6px",
-    textAlign: "left",
+    fontSize: "16px",
+  },
+  textarea: {
+    width: "300px",
+    height: "100px",
+    padding: "10px",
+    fontSize: "16px",
+  },
+  button: {
+    backgroundColor: "#007bff",
+    color: "#fff",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: "4px",
+    cursor: "pointer",
   },
 };
 
-export default Courses;
+export default AddCourse;
