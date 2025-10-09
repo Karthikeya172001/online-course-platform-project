@@ -19,14 +19,14 @@ function Login() {
 
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
-        setMessage("✅ Login successful!");
-        navigate("/courses");
+        setMessage("✅ Login successful! Redirecting...");
+        setTimeout(() => navigate("/courses"), 1500);
       } else {
-        setMessage("Login failed. No token returned.");
+        setMessage("❌ Invalid login credentials.");
       }
     } catch (err) {
       console.error("Login error:", err);
-      setMessage("❌ Invalid credentials or server error.");
+      setMessage("❌ Login failed. Please check your credentials.");
     }
   };
 
@@ -63,13 +63,13 @@ function Login() {
 const styles = {
   container: {
     textAlign: "center",
-    marginTop: "50px",
+    marginTop: "60px",
   },
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "10px",
     alignItems: "center",
+    gap: "10px",
   },
   input: {
     width: "250px",
@@ -80,7 +80,7 @@ const styles = {
     width: "150px",
     padding: "10px",
     fontSize: "16px",
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#28a745",
     color: "#fff",
     border: "none",
     borderRadius: "4px",
