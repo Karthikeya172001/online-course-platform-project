@@ -1,55 +1,60 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import getRole from "../utils/getRole";
 
 function Courses() {
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const role = getRole();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setError("Please login to view courses.");
-          return;
-        }
-
         const res = await axios.get(
           "https://online-course-platform-project-backend.onrender.com/api/courses",
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
 
         if (Array.isArray(res.data)) {
           setCourses(res.data);
+        } else if (res.data.courses && Array.isArray(res.data.courses)) {
+          setCourses(res.data.courses);
         } else {
-          setCourses([]);
-          setError("No courses available.");
+          setError("Unexpected response format");
         }
       } catch (err) {
+        console.error("Error fetching courses:", err);
         setError("Failed to load courses");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchCourses();
-  }, []);
+  }, [token]);
+
+  if (loading) return <p>Loading courses...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div style={styles.container}>
       <h2>Courses</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {courses.length > 0 ? (
+      {courses.length === 0 ? (
+        <p>No courses available</p>
+      ) : (
         <ul>
           {courses.map((course) => (
             <li key={course._id}>
-              {course.title}{" "}
-              {course.instructor && `- ${course.instructor.username}`}
+              {course.title} – {course?.instructor?.username || "Unknown"}
             </li>
           ))}
         </ul>
-      ) : (
-        <p>No courses available</p>
       )}
     </div>
   );
@@ -58,7 +63,7 @@ function Courses() {
 const styles = {
   container: {
     textAlign: "center",
-    marginTop: "50px",
+    marginTop: "40px",
   },
 };
 
