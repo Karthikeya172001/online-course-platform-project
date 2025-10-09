@@ -1,62 +1,61 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
-  const [form, setForm] = useState({
-    username: "",
-    email: "",
-    password: "",
-    role: "Student",
-  });
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("student");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post(
         "https://online-course-platform-project-backend.onrender.com/api/auth/register",
-        form
+        { username, email, password, role }
       );
-      alert("Registration successful! You can now login.");
-      console.log(res.data);
+      if (res.status === 201 || res.data.message) {
+        alert("Registration successful! Please login.");
+        navigate("/login");
+      } else {
+        setError("Registration failed");
+      }
     } catch (err) {
-      console.error(err);
       setError("Registration failed");
     }
   };
 
   return (
-    <div>
+    <div style={styles.container}>
       <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleRegister} style={styles.form}>
         <input
           type="text"
-          name="username"
           placeholder="Username"
-          value={form.username}
-          onChange={handleChange}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
         />
         <input
           type="email"
-          name="email"
           placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
         />
         <input
           type="password"
-          name="password"
           placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
         />
-        <select name="role" value={form.role} onChange={handleChange}>
-          <option value="Student">Student</option>
-          <option value="Instructor">Instructor</option>
+        <select value={role} onChange={(e) => setRole(e.target.value)}>
+          <option value="student">Student</option>
+          <option value="instructor">Instructor</option>
         </select>
         <button type="submit">Register</button>
       </form>
@@ -64,5 +63,10 @@ function Register() {
     </div>
   );
 }
+
+const styles = {
+  container: { textAlign: "center", marginTop: "50px" },
+  form: { display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" },
+};
 
 export default Register;
