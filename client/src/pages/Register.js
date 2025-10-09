@@ -3,28 +3,31 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function Register() {
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("student");
-  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
     try {
       const res = await axios.post(
         "https://online-course-platform-project-backend.onrender.com/api/auth/register",
-        { username, email, password, role }
+        { name, email, password, role }
       );
-      if (res.status === 201 || res.data.message) {
-        alert("Registration successful! Please login.");
-        navigate("/login");
+
+      if (res.data.message === "User registered successfully") {
+        setMessage("✅ Registered successfully! Redirecting to login...");
+        setTimeout(() => navigate("/login"), 1500);
       } else {
-        setError("Registration failed");
+        setMessage(res.data.message || "❌ Registration failed.");
       }
     } catch (err) {
-      setError("Registration failed");
+      console.error("Registration error:", err);
+      setMessage("❌ Registration failed. Try again.");
     }
   };
 
@@ -34,10 +37,11 @@ function Register() {
       <form onSubmit={handleRegister} style={styles.form}>
         <input
           type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           required
+          style={styles.input}
         />
         <input
           type="email"
@@ -45,6 +49,7 @@ function Register() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          style={styles.input}
         />
         <input
           type="password"
@@ -52,21 +57,73 @@ function Register() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          style={styles.input}
         />
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="student">Student</option>
-          <option value="instructor">Instructor</option>
-        </select>
-        <button type="submit">Register</button>
+
+        <div style={styles.radioGroup}>
+          <label>
+            <input
+              type="radio"
+              name="role"
+              value="student"
+              checked={role === "student"}
+              onChange={(e) => setRole(e.target.value)}
+            />{" "}
+            Student
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="role"
+              value="instructor"
+              checked={role === "instructor"}
+              onChange={(e) => setRole(e.target.value)}
+            />{" "}
+            Instructor
+          </label>
+        </div>
+
+        <button type="submit" style={styles.button}>
+          Register
+        </button>
       </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {message && <p>{message}</p>}
     </div>
   );
 }
 
 const styles = {
-  container: { textAlign: "center", marginTop: "50px" },
-  form: { display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" },
+  container: {
+    textAlign: "center",
+    marginTop: "50px",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    alignItems: "center",
+  },
+  input: {
+    width: "250px",
+    padding: "8px",
+    fontSize: "16px",
+  },
+  radioGroup: {
+    display: "flex",
+    gap: "15px",
+    marginTop: "10px",
+  },
+  button: {
+    width: "150px",
+    padding: "10px",
+    fontSize: "16px",
+    backgroundColor: "#007BFF",
+    color: "#fff",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+  },
 };
 
 export default Register;
