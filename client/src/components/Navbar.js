@@ -1,32 +1,71 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import jwtDecode from "jwt-decode";
 
-export default function Navbar() {
+function Navbar() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  const logout = () => {
+  let role = null;
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      role = decoded.role;
+    } catch (err) {
+      console.error("Invalid token");
+    }
+  }
+
+  const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
 
   return (
-    <nav style={{ display: "flex", justifyContent: "space-between", padding: 12, background: "#222", color: "#fff" }}>
-      <div><strong>Online Course Platform</strong></div>
-      <div style={{ display: "flex", gap: 12 }}>
-        {!token ? (
+    <nav style={styles.nav}>
+      <h2 style={styles.logo}>Online Course Platform</h2>
+      <ul style={styles.menu}>
+        {!token && (
           <>
-            <Link to="/" style={{ color: "#fff" }}>Register</Link>
-            <Link to="/login" style={{ color: "#fff" }}>Login</Link>
-          </>
-        ) : (
-          <>
-            <Link to="/courses" style={{ color: "#fff" }}>Courses</Link>
-            <Link to="/add-course" style={{ color: "#fff" }}>Add Course</Link>
-            <button onClick={logout} style={{ background: "transparent", color: "#fff", border: "1px solid #fff", padding: "4px 8px" }}>Logout</button>
+            <li><Link to="/">Register</Link></li>
+            <li><Link to="/login">Login</Link></li>
           </>
         )}
-      </div>
+        {token && (
+          <>
+            <li><Link to="/courses">Courses</Link></li>
+            {role === "instructor" && <li><Link to="/add-course">Add Course</Link></li>}
+            <li><button onClick={handleLogout} style={styles.logout}>Logout</button></li>
+          </>
+        )}
+      </ul>
     </nav>
   );
 }
+
+const styles = {
+  nav: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "10px 20px",
+    background: "#333",
+    color: "#fff",
+  },
+  logo: { margin: 0 },
+  menu: {
+    listStyle: "none",
+    display: "flex",
+    gap: "15px",
+    margin: 0,
+    padding: 0,
+  },
+  logout: {
+    background: "transparent",
+    border: "none",
+    color: "#fff",
+    cursor: "pointer",
+  },
+};
+
+export default Navbar;
