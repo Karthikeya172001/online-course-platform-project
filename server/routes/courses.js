@@ -5,28 +5,36 @@ import { authenticate, authorizeRole } from "../middleware/auth.js";
 const router = express.Router();
 
 // ✅ Get all courses
-router.get("/", async (req, res) => {
+router.get("/", authenticate, async (req, res) => {
   try {
-    const courses = await Course.find().populate("instructor", "username");
+    const courses = await Course.find().populate("instructor", "username email");
     res.json(courses);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error fetching courses:", err);
+    res.status(500).json({ error: "Failed to fetch courses" });
   }
 });
 
-// ✅ Add new course (only for instructor)
-router.post("/", authenticate, authorizeRole("instructor"), async (req, res) => {
+// ✅ Add new course (instructor only)
+router.post("/add", authenticate, authorizeRole("instructor"), async (req, res) => {
   try {
     const { title, description } = req.body;
-    const newCourse = new Course({
+
+    if (!title || !description) {
+      return res.status(400).json({ error: "Title and description required" });
+    }
+
+    const course = new Course({
       title,
       description,
-      instructor: req.user.id,
+      instructor: req.user.id, // ✅ Comes from decoded JWT
     });
-    await newCourse.save();
-    res.json({ message: "Course added successfully" });
+
+    const savedCourse = await course.save();
+    res.status(201).json(savedCourse);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error adding course:", err);
+    res.status(500).json({ error: "Failed to add course" });
   }
 });
 
