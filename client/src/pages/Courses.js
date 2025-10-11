@@ -4,67 +4,64 @@ import getRole from "../utils/getRole";
 
 function Courses() {
   const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const role = getRole();
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        const token = localStorage.getItem("token");
         const res = await axios.get(
           "https://online-course-platform-project-backend.onrender.com/api/courses",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          token ? { headers: { Authorization: `Bearer ${token}` } } : {}
         );
-
-        if (Array.isArray(res.data)) {
-          setCourses(res.data);
-        } else if (res.data.courses && Array.isArray(res.data.courses)) {
-          setCourses(res.data.courses);
-        } else {
-          setError("Unexpected response format");
-        }
+        setCourses(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
-        console.error("Error fetching courses:", err);
+        console.error("❌ Error fetching courses:", err);
         setError("Failed to load courses");
-      } finally {
-        setLoading(false);
       }
     };
-
     fetchCourses();
-  }, [token]);
+  }, []);
 
-  if (loading) return <p>Loading courses...</p>;
+  const handleEnroll = async (courseId) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        "https://online-course-platform-project-backend.onrender.com/api/courses/enroll",
+        { courseId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("✅ Enrolled successfully!");
+    } catch (err) {
+      console.error("❌ Enrollment failed:", err);
+      alert("Failed to enroll.");
+    }
+  };
+
   if (error) return <p>{error}</p>;
+  if (courses.length === 0) return <p>No courses available.</p>;
 
   return (
-    <div style={styles.container}>
+    <div style={{ padding: 20 }}>
       <h2>Courses</h2>
-      {courses.length === 0 ? (
-        <p>No courses available</p>
-      ) : (
-        <ul>
-          {courses.map((course) => (
-            <li key={course._id}>
-              {course.title} – {course?.instructor?.username || "Unknown"}
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul>
+        {courses.map((c) => (
+          <li key={c._id}>
+            <strong>{c.title}</strong> – {c.description}
+            {role === "student" && (
+              <button
+                onClick={() => handleEnroll(c._id)}
+                style={{ marginLeft: 10 }}
+              >
+                Enroll
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    textAlign: "center",
-    marginTop: "40px",
-  },
-};
 
 export default Courses;
