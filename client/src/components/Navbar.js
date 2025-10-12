@@ -1,11 +1,11 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import getRole from "../utils/getRole"; // ✅ decode user role from JWT
+import getRole from "../utils/getRole";
 
 function Navbar() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const role = getRole(); // returns "student", "instructor", or null
+  const role = getRole();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -14,27 +14,20 @@ function Navbar() {
 
   return (
     <nav style={styles.nav}>
-      <h2 style={styles.logo}>Online Course Platform</h2>
-      <ul style={styles.menu}>
-        {!token ? (
-          <>
-            <li><Link to="/">Register</Link></li>
-            <li><Link to="/login">Login</Link></li>
-          </>
-        ) : (
-          <>
-            <li><Link to="/courses">Courses</Link></li>
-            {role === "instructor" && (
-              <li><Link to="/add-course">Add Course</Link></li>
-            )}
-            <li>
-              <button onClick={handleLogout} style={styles.logout}>
-                Logout
-              </button>
-            </li>
-          </>
-        )}
-      </ul>
+      <Link to="/" style={styles.link}>Register</Link>
+      <Link to="/login" style={styles.link}>Login</Link>
+
+      {token && (
+        <>
+          <Link to="/courses" style={styles.link}>
+            {role === "instructor" ? "My Courses" : "Courses"}
+          </Link>
+          {role === "instructor" && (
+            <Link to="/add-course" style={styles.link}>Add Course</Link>
+          )}
+          <button onClick={handleLogout} style={styles.logout}>Logout</button>
+        </>
+      )}
     </nav>
   );
 }
@@ -42,31 +35,24 @@ function Navbar() {
 const styles = {
   nav: {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    background: "#333",
-    color: "#fff",
-    padding: "10px 20px",
-  },
-  logo: {
-    margin: 0,
-  },
-  menu: {
-    listStyle: "none",
-    display: "flex",
+    justifyContent: "center",
     gap: "20px",
-    alignItems: "center",
-    margin: 0,
-    padding: 0,
+    background: "#333",
+    padding: "10px",
   },
+  link: { color: "#fff", textDecoration: "none" },
   logout: {
-    background: "#ff4444",
+    background: "red",
     color: "#fff",
     border: "none",
-    padding: "6px 12px",
     cursor: "pointer",
-    borderRadius: "4px",
+    padding: "5px 10px",
   },
 };
 
 export default Navbar;
+
+
+
+
+
