@@ -5,59 +5,76 @@ import getRole from "../utils/getRole";
 function Courses() {
   const [courses, setCourses] = useState([]);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
   const role = getRole();
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const res = await axios.get(
-          "https://online-course-platform-project-backend.onrender.com/api/courses",
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setCourses(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        console.error(err);
-        setMessage("Failed to load courses");
-      }
-    };
     fetchCourses();
-  }, [token]);
+  }, []);
 
+  const fetchCourses = async () => {
+    try {
+      let url = "https://online-course-platform-project-backend.onrender.com/api/courses";
+
+      // ✅ If instructor → show only their courses
+      if (role === "instructor") {
+        url = `${url}/my-courses`;
+      } else if (role === "student") {
+        url = `${url}/enrolled`;
+      }
+
+      const { data } = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setCourses(Array.isArray(data) ? data : []);
+      setMessage("");
+    } catch (err) {
+      console.error(err);
+      setMessage("❌ Failed to load courses");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Enroll button for students
   const handleEnroll = async (courseId) => {
     try {
-      const res = await axios.post(
+      const { data } = await axios.post(
         `https://online-course-platform-project-backend.onrender.com/api/courses/${courseId}/enroll`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setMessage("✅ Enrolled successfully!");
+      setMessage(data.message);
+      fetchCourses();
     } catch (err) {
       console.error(err);
-      setMessage("❌ Failed to enroll.");
+      setMessage("❌ Failed to enroll");
     }
   };
 
-  const myCourses = role === "instructor"
-    ? courses.filter(c => c.instructor?._id === getRole("id"))
-    : [];
-
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={styles.container}>
       <h2>Courses</h2>
-      {message && <p>{message}</p>}
-      {courses.length === 0 ? (
+      {loading ? (
+        <p>Loading...</p>
+      ) : message ? (
+        <p>{message}</p>
+      ) : courses.length === 0 ? (
         <p>No courses available</p>
       ) : (
-        <ul>
+        <ul style={styles.list}>
           {courses.map((course) => (
-            <li key={course._id} style={{ marginBottom: "10px" }}>
-              <strong>{course.title}</strong> —{" "}
-              {course.instructor?.username || "Unknown Instructor"}
+            <li key={course._id} style={styles.item}>
+              <span>
+                {course.title} —{" "}
+                {course.instructor ? course.instructor.username : "Unknown"}
+              </span>
               {role === "student" && (
                 <button
-                  style={{ marginLeft: "10px" }}
                   onClick={() => handleEnroll(course._id)}
+                  style={styles.button}
                 >
                   Enroll
                 </button>
@@ -66,23 +83,34 @@ function Courses() {
           ))}
         </ul>
       )}
-
-      {role === "instructor" && (
-        <>
-          <h3>My Courses</h3>
-          {myCourses.length === 0 ? (
-            <p>You haven’t added any courses yet.</p>
-          ) : (
-            <ul>
-              {myCourses.map((c) => (
-                <li key={c._id}>{c.title}</li>
-              ))}
-            </ul>
-          )}
-        </>
-      )}
     </div>
   );
 }
 
+const styles = {
+  container: { padding: "20px", textAlign: "center" },
+  list: { listStyle: "none", padding: 0 },
+  item: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    border: "1px solid #ccc",
+    padding: "10px",
+    margin: "10px auto",
+    maxWidth: "400px",
+    borderRadius: "5px",
+  },
+  button: {
+    background: "#007bff",
+    color: "#fff",
+    border: "none",
+    padding: "5px 10px",
+    borderRadius: "4px",
+    cursor: "pointer",
+  },
+};
+
 export default Courses;
+    
+    
+    
