@@ -3,7 +3,7 @@ import React from "react";
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null, info: null };
+    this.state = { hasError: false, error: null };
   }
 
   static getDerivedStateFromError(error) {
@@ -11,25 +11,34 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    console.error("ErrorBoundary caught:", error, info);
-    this.setState({ info });
+    console.error("Error Boundary Caught:", error, info);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: 20 }}>
-          <h2 style={{ color: "red" }}>⚠ Something went wrong. Please refresh.</h2>
-          <pre style={{ whiteSpace: "pre-wrap" }}>{String(this.state.error)}</pre>
-          <details style={{ whiteSpace: "pre-wrap" }}>
-            {this.state.info?.componentStack || "No stack available"}
-          </details>
+        <div style={styles.container}>
+          <h2>⚠ Something went wrong.</h2>
+          <p>Please refresh the page or try again later.</p>
         </div>
       );
     }
-
     return this.props.children;
   }
 }
 
+const styles = {
+  container: {
+    textAlign: "center",
+    marginTop: "100px",
+    color: "#d9534f",
+    fontFamily: "Arial, sans-serif",
+  },
+};
+
 export default ErrorBoundary;
+
+
+
+
+
