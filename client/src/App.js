@@ -45,4 +45,39 @@ function App() {
   );
 }
 
+
 export default App;
+
+
+import EnrolledCourses from "./pages/EnrolledCourses";
+
+// ...
+<Routes>
+  <Route path="/" element={<Register />} />
+  <Route path="/login" element={<Login />} />
+  <Route
+    path="/courses"
+    element={
+      <PrivateRoute>
+        <Courses />
+      </PrivateRoute>
+    }
+  />
+  <Route
+    path="/enrolled"
+    element={
+      <PrivateRoute>
+        <EnrolledCourses />
+      </PrivateRoute>
+    }
+  />
+  <Route
+    path="/add-course"
+    element={
+      <PrivateRoute>
+        <AddCourse />
+      </PrivateRoute>
+    }
+  />
+</Routes>
+
