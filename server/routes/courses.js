@@ -4,73 +4,115 @@ import { authenticate, authorizeRole } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// ✅ Get all courses
+// -------------------------
+// GET ALL COURSES (PUBLIC)
+// -------------------------
 router.get("/", async (req, res) => {
   try {
     const courses = await Course.find().populate("instructor", "username");
     res.json(courses);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to load courses" });
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-// ✅ Add a new course (only instructors)
-router.post("/", authenticate, authorizeRole("instructor"), async (req, res) => {
-  try {
-    const { title } = req.body;
-    const course = new Course({
-      title,
-      instructor: req.user.id,
-    });
-    await course.save();
-    res.status(201).json({ message: "✅ Course added successfully!", course });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to add course" });
-  }
-});
+// -------------------------
+// ADD COURSE (INSTRUCTOR ONLY)
+// -------------------------
+router.post(
+  "/add",
+  authenticate,
+  authorizeRole("instructor"),
+  async (req, res) => {
+    const { title, description } = req.body;
 
-// ✅ Enroll in a course (students only)
-router.post("/:id/enroll", authenticate, authorizeRole("student"), async (req, res) => {
-  try {
-    const courseId = req.params.id;
-    const userId = req.user.id;
+    try {
+      const course = new Course({
+        title,
+        description,
+        instructor: req.user.id,
+      });
 
-    const course = await Course.findById(courseId);
-    if (!course) return res.status(404).json({ error: "Course not found" });
+      await course.save();
 
-    if (course.students.includes(userId)) {
-      return res.status(400).json({ error: "Already enrolled" });
+      res.json({ message: "Course added successfully", course });
+    } catch (error) {
+      console.error("Error adding course:", error);
+      res.status(500).json({ error: "Server error" });
     }
-
-    course.students.push(userId);
-    await course.save();
-
-    res.json({ message: "✅ Enrolled successfully!", course });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error while enrolling" });
   }
-});
+);
 
-// ✅ Get instructor’s own courses
-router.get("/my-courses", authenticate, authorizeRole("instructor"), async (req, res) => {
-  try {
-    const myCourses = await Course.find({ instructor: req.user.id });
-    res.json(myCourses);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch your courses" });
-  }
-});
+// -------------------------
+// ENROLL IN A COURSE (STUDENT)
+// -------------------------
+router.post(
+  "/enroll/:courseId",
+  authenticate,
+  authorizeRole("student"),
+  async (req, res) => {
+    try {
+      const course = await Course.findById(req.params.courseId);
 
-// ✅ Get student’s enrolled courses
-router.get("/enrolled", authenticate, authorizeRole("student"), async (req, res) => {
-  try {
-    const courses = await Course.find({ students: req.user.id }).populate("instructor", "username");
-    res.json(courses);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch enrolled courses" });
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      // If student already enrolled
+      if (course.studentsEnrolled.includes(req.user.id)) {
+        return res.json({ message: "Already enrolled" });
+      }
+
+      course.studentsEnrolled.push(req.user.id);
+      await course.save();
+
+      res.json({ message: "Enrolled successfully" });
+    } catch (error) {
+      console.error("Error enrolling:", error);
+      res.status(500).json({ error: "Server error" });
+    }
   }
-});
+);
+
+// -------------------------
+// GET COURSES OF LOGGED-IN INSTRUCTOR
+// -------------------------
+router.get(
+  "/instructor/my-courses",
+  authenticate,
+  authorizeRole("instructor"),
+  async (req, res) => {
+    try {
+      const courses = await Course.find({ instructor: req.user.id });
+      res.json(courses);
+    } catch (error) {
+      console.error("Error fetching instructor courses:", error);
+      res.status(500).json({ error: "Server error" });
+    }
+  }
+);
+
+// -------------------------
+// GET COURSES ENROLLED BY STUDENT
+// -------------------------
+router.get(
+  "/my-enrolled",
+  authenticate,
+  authorizeRole("student"),
+  async (req, res) => {
+    try {
+      const courses = await Course.find({
+        studentsEnrolled: req.user.id,
+      }).populate("instructor", "username");
+
+      res.json(courses);
+    } catch (error) {
+      console.error("Error fetching enrolled courses:", error);
+      res.status(500).json({ error: "Server error" });
+    }
+  }
+);
 
 export default router;
 
