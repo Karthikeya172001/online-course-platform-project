@@ -5,7 +5,7 @@ import getRole from "../utils/getRole";
 function Navbar() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const role = getRole(); // "student" or "instructor"
+  const role = getRole();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -14,55 +14,44 @@ function Navbar() {
 
   return (
     <nav style={styles.nav}>
-      <h2 style={styles.logo}>Online Course Platform</h2>
-
-      <div style={styles.menu}>
-        {!token && (
-          <>
-            <Link to="/" style={styles.link}>Register</Link>
-            <Link to="/login" style={styles.link}>Login</Link>
-          </>
-        )}
+      <div style={styles.left}>
+        <Link to="/" style={styles.link}>Register</Link>
+        <Link to="/login" style={styles.link}>Login</Link>
 
         {token && (
           <>
             <Link to="/courses" style={styles.link}>Courses</Link>
 
-            {/* Instructor-only links */}
             {role === "instructor" && (
               <>
                 <Link to="/add-course" style={styles.link}>Add Course</Link>
                 <Link to="/my-courses" style={styles.link}>My Courses</Link>
               </>
             )}
-
-            <button onClick={handleLogout} style={styles.logoutBtn}>
-              Logout
-            </button>
           </>
         )}
       </div>
+
+      {token && (
+        <button onClick={handleLogout} style={styles.logoutBtn}>
+          Logout
+        </button>
+      )}
     </nav>
   );
 }
 
-// Inline CSS
 const styles = {
   nav: {
+    background: "#222",
+    padding: "12px 20px",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "12px 20px",
-    background: "#333",
-    color: "#fff",
   },
-  logo: {
-    margin: 0,
-  },
-  menu: {
+  left: {
     display: "flex",
     gap: "15px",
-    alignItems: "center",
   },
   link: {
     color: "#fff",
@@ -70,14 +59,16 @@ const styles = {
     fontSize: "16px",
   },
   logoutBtn: {
+    background: "red",
+    color: "white",
     padding: "6px 12px",
+    border: "none",
     cursor: "pointer",
+    borderRadius: "4px",
   },
 };
 
 export default Navbar;
-
-
 
 
 
