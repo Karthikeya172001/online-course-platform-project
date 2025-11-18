@@ -12,13 +12,17 @@ function App() {
   return (
     <Router>
       <Navbar />
+
       <Routes>
+        {/* Guest Pages */}
         <Route path="/" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/courses" element={<Courses />} />
 
-        {/* Instructor-only pages */}
+        {/* Logged-in Routes */}
+        <Route path="/courses" element={<Courses />} />
         <Route path="/add-course" element={<AddCourse />} />
+
+        {/* Instructor Only */}
         <Route path="/my-courses" element={<MyCourses />} />
       </Routes>
     </Router>
