@@ -1,83 +1,30 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import Navbar from "./components/Navbar";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Courses from "./pages/Courses";
 import AddCourse from "./pages/AddCourse";
-
-function PrivateRoute({ children }) {
-  const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" />;
-}
+import MyCourses from "./pages/MyCourses";
 
 function App() {
   return (
     <Router>
       <Navbar />
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/courses" element={<Courses />} />
 
-        {/* Protected Routes */}
-        <Route
-          path="/courses"
-          element={
-            <PrivateRoute>
-              <Courses />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/add-course"
-          element={
-            <PrivateRoute>
-              <AddCourse />
-            </PrivateRoute>
-          }
-        />
-
-        {/* Fallback for unknown routes */}
-        <Route path="*" element={<Navigate to="/" />} />
+        {/* Instructor-only pages */}
+        <Route path="/add-course" element={<AddCourse />} />
+        <Route path="/my-courses" element={<MyCourses />} />
       </Routes>
     </Router>
   );
 }
 
-
 export default App;
 
-
-import EnrolledCourses from "./pages/EnrolledCourses";
-
-// ...
-<Routes>
-  <Route path="/" element={<Register />} />
-  <Route path="/login" element={<Login />} />
-  <Route
-    path="/courses"
-    element={
-      <PrivateRoute>
-        <Courses />
-      </PrivateRoute>
-    }
-  />
-  <Route
-    path="/enrolled"
-    element={
-      <PrivateRoute>
-        <EnrolledCourses />
-      </PrivateRoute>
-    }
-  />
-  <Route
-    path="/add-course"
-    element={
-      <PrivateRoute>
-        <AddCourse />
-      </PrivateRoute>
-    }
-  />
-</Routes>
 
