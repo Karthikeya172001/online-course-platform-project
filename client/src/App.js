@@ -7,28 +7,55 @@ import Login from "./pages/Login";
 import Courses from "./pages/Courses";
 import AddCourse from "./pages/AddCourse";
 import MyCourses from "./pages/MyCourses";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
     <Router>
       <Navbar />
 
-      <Routes>
-        {/* Guest Pages */}
-        <Route path="/" element={<Register />} />
-        <Route path="/login" element={<Login />} />
+      <div style={{ padding: "20px" }}>
+        <Routes>
 
-        {/* Logged-in Routes */}
-        <Route path="/courses" element={<Courses />} />
-        <Route path="/add-course" element={<AddCourse />} />
+          {/* Public Routes */}
+          <Route path="/" element={<Register />} />
+          <Route path="/login" element={<Login />} />
 
-        {/* Instructor Only */}
-        <Route path="/my-courses" element={<MyCourses />} />
-      </Routes>
+          {/* Private Routes */}
+          <Route
+            path="/courses"
+            element={
+              <PrivateRoute>
+                <Courses />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/add-course"
+            element={
+              <PrivateRoute>
+                <AddCourse />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/my-courses"
+            element={
+              <PrivateRoute>
+                <MyCourses />
+              </PrivateRoute>
+            }
+          />
+
+        </Routes>
+      </div>
     </Router>
   );
 }
 
 export default App;
+
 
 
