@@ -1,44 +1,54 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const MyCourses = () => {
+function MyCourses() {
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
     const fetchMyCourses = async () => {
       try {
         const token = localStorage.getItem("token");
+        if (!token) {
+          setError("Not logged in");
+          setLoading(false);
+          return;
+        }
 
-        const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/courses/my-courses`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await axios.get(`${API_BASE}/api/courses/my-courses`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-        setCourses(res.data);
+        setCourses(res.data.courses || []);
       } catch (err) {
         setError("Failed to load your courses");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchMyCourses();
-  }, []);
+  }, [API_BASE]);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div style={styles.container}>
       <h2>My Courses</h2>
 
-      {error && <p style={styles.error}>{error}</p>}
-
       {courses.length === 0 ? (
-        <p>No courses created by you.</p>
+        <p>No courses yet.</p>
       ) : (
         <ul style={styles.list}>
           {courses.map((course) => (
-            <li key={course._id} style={styles.courseCard}>
-              <h3>{course.title}</h3>
+            <li key={course._id} style={styles.item}>
+              <strong>{course.title}</strong>
               <p>{course.description}</p>
             </li>
           ))}
@@ -46,21 +56,24 @@ const MyCourses = () => {
       )}
     </div>
   );
-};
+}
 
 const styles = {
-  container: { padding: "20px" },
-  list: { listStyle: "none", padding: 0 },
-  courseCard: {
-    background: "#f2f2f2",
-    padding: "15px",
-    marginBottom: "15px",
-    borderRadius: "8px",
+  container: {
+    padding: "20px",
   },
-  error: { color: "red" },
+  list: {
+    listStyle: "none",
+    padding: 0,
+  },
+  item: {
+    background: "#eee",
+    padding: "12px",
+    marginBottom: "10px",
+    borderRadius: "5px",
+  },
 };
 
 export default MyCourses;
-
 
 
