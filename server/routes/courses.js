@@ -79,6 +79,22 @@ router.get(
   }
 );
 
+
+// GET only instructor's own courses
+router.get("/my-courses", authenticate, async (req, res) => {
+  try {
+    const instructorId = req.user.id;
+
+    const courses = await Course.find({ instructor: instructorId });
+
+    res.json(courses);
+  } catch (error) {
+    console.error("Error fetching instructor courses:", error);
+    res.status(500).json({ error: "Failed to load your courses" });
+  }
+});
+
+
 export default router;
 
 
