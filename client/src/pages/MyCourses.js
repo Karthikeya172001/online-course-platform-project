@@ -1,56 +1,56 @@
+
+
+
+
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 function MyCourses() {
   const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const API = "https://online-course-platform-project-backend.onrender.com";
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("No token found");
-      setLoading(false);
-      return;
-    }
+    const fetchMyCourses = async () => {
+      try {
+        const res = await axios.get(
+          "https://online-course-platform-project-backend.onrender.com/api/courses/my-courses",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-    fetch(`${API}/api/courses/my-courses`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || "Failed to load courses");
+        if (Array.isArray(res.data)) {
+          setCourses(res.data);
+        } else {
+          setCourses([]);
         }
-        return res.json();
-      })
-      .then((data) => {
-        setCourses(data.courses || []);
-      })
-      .catch((err) => {
-        console.error("Fetch error:", err);
-        setError(err.message);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+      } catch (err) {
+        console.log(err);
+        setError("Failed to load your courses");
+      }
+    };
 
-  if (loading) return <p>Loading your courses…</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+    fetchMyCourses();
+  }, [token]);
 
   return (
-    <div>
+    <div style={styles.container}>
       <h2>My Courses</h2>
+
+      {error && <p style={styles.error}>{error}</p>}
 
       {courses.length === 0 ? (
         <p>No courses created yet.</p>
       ) : (
-        <ul>
-          {courses.map((c) => (
-            <li key={c._id}>
-              <strong>{c.title}</strong> – {c.description}
+        <ul style={styles.list}>
+          {courses.map((course) => (
+            <li key={course._id} style={styles.item}>
+              <strong>{course.title}</strong>
+              <p>{course.description}</p>
             </li>
           ))}
         </ul>
@@ -59,7 +59,23 @@ function MyCourses() {
   );
 }
 
+const styles = {
+  container: {
+    padding: "20px",
+  },
+  error: {
+    color: "red",
+  },
+  list: {
+    listStyle: "none",
+    padding: 0,
+  },
+  item: {
+    padding: "10px",
+    background: "#eee",
+    marginBottom: "10px",
+    borderRadius: "5px",
+  },
+};
+
 export default MyCourses;
-
-
-
