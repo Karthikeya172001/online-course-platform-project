@@ -7,7 +7,7 @@ function Navbar() {
   const token = localStorage.getItem("token");
   const role = getRole();
 
-  const handleLogout = () => {
+  const logout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
@@ -33,9 +33,7 @@ function Navbar() {
       </div>
 
       {token && (
-        <button onClick={handleLogout} style={styles.logoutBtn}>
-          Logout
-        </button>
+        <button style={styles.btn} onClick={logout}>Logout</button>
       )}
     </nav>
   );
@@ -44,10 +42,9 @@ function Navbar() {
 const styles = {
   nav: {
     background: "#222",
-    padding: "12px 20px",
+    padding: "12px",
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
   },
   left: {
     display: "flex",
@@ -56,19 +53,18 @@ const styles = {
   link: {
     color: "#fff",
     textDecoration: "none",
-    fontSize: "16px",
   },
-  logoutBtn: {
+  btn: {
     background: "red",
-    color: "white",
-    padding: "6px 12px",
+    color: "#fff",
     border: "none",
-    cursor: "pointer",
-    borderRadius: "4px",
-  },
+    padding: "6px 12px",
+  }
 };
 
 export default Navbar;
+
+
 
 
 
