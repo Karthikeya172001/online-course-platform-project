@@ -1,15 +1,16 @@
 import jwtDecode from "jwt-decode";
 
-const getRole = () => {
+export default function getRole() {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+
   try {
-    const token = localStorage.getItem("token");
-    if (!token) return null;
     const decoded = jwtDecode(token);
-    return decoded.role || null;
-  } catch (err) {
-    console.error("Error decoding token:", err);
+    return decoded.role;
+  } catch {
     return null;
   }
-};
+}
 
-export default getRole;
+
+
