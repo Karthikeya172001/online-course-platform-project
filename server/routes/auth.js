@@ -1,7 +1,3 @@
-
-
-
-
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -43,6 +39,8 @@ router.post("/login", async (req, res) => {
 });
 
 export default router;
+
+
 
 
 
