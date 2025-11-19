@@ -1,22 +1,23 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import ErrorBoundary from "./components/ErrorBoundary";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Courses from "./pages/Courses";
 import AddCourse from "./pages/AddCourse";
 import MyCourses from "./pages/MyCourses";
 import PrivateRoute from "./components/PrivateRoute";
-import ErrorBoundary from "./components/ErrorBoundary";
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Navbar />
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={<Register />} />
           <Route path="/login" element={<Login />} />
+
           <Route
             path="/courses"
             element={
@@ -25,28 +26,31 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/add-course"
             element={
-              <PrivateRoute>
+              <PrivateRoute role="instructor">
                 <AddCourse />
               </PrivateRoute>
             }
           />
+
           <Route
             path="/my-courses"
             element={
-              <PrivateRoute>
+              <PrivateRoute role="instructor">
                 <MyCourses />
               </PrivateRoute>
             }
           />
         </Routes>
       </ErrorBoundary>
-    </Router>
+    </BrowserRouter>
   );
 }
 
 export default App;
+
 
 
