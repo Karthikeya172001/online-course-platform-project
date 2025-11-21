@@ -1,6 +1,3 @@
-
-
-
 import jwt from "jsonwebtoken";
 
 export function authenticate(req, res, next) {
@@ -25,4 +22,7 @@ export function authorizeRole(role) {
     next();
   };
 }
+
+
+
   
