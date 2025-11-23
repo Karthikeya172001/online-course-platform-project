@@ -1,91 +1,42 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate();
+  const [password,setPassword] = useState("");
 
-  const handleLogin = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
 
-    try {
-      const res = await axios.post(
-        "https://online-course-platform-project-backend.onrender.com/api/auth/login",
-        { email, password }
-      );
-
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        setMessage("✅ Login successful! Redirecting...");
-        setTimeout(() => navigate("/courses"), 1500);
-      } else {
-        setMessage("❌ Invalid login credentials.");
+    const res = await fetch(
+      "https://online-course-platform-project-backend.onrender.com/api/auth/login",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       }
-    } catch (err) {
-      console.error("Login error:", err);
-      setMessage("❌ Login failed. Please check your credentials.");
+    );
+
+    const data = await res.json();
+
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      window.location.href = "/courses";
+    } else {
+      alert("Login failed");
     }
   };
 
   return (
-    <div style={styles.container}>
+    <form onSubmit={submit}>
       <h2>Login</h2>
-      <form onSubmit={handleLogin} style={styles.form}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={styles.input}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={styles.input}
-        />
-        <button type="submit" style={styles.button}>
-          Login
-        </button>
-      </form>
 
-      {message && <p>{message}</p>}
-    </div>
+      <input placeholder="Email" onChange={(e)=>setEmail(e.target.value)} />
+      <input placeholder="Password" type="password" onChange={(e)=>setPassword(e.target.value)} />
+
+      <button>Login</button>
+    </form>
   );
 }
 
-const styles = {
-  container: {
-    textAlign: "center",
-    marginTop: "60px",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "10px",
-  },
-  input: {
-    width: "250px",
-    padding: "8px",
-    fontSize: "16px",
-  },
-  button: {
-    width: "150px",
-    padding: "10px",
-    fontSize: "16px",
-    backgroundColor: "#28a745",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-};
-
 export default Login;
+
