@@ -1,18 +1,30 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 function Courses() {
   const [courses, setCourses] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("https://online-course-platform-project-backend.onrender.com/api/courses")
-      .then((r) => r.json())
-      .then((data) => setCourses(Array.isArray(data) ? data : []))
-      .catch(() => setCourses([]));
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No token provided");
+      return;
+    }
+
+    axios
+      .get("https://online-course-platform-project-backend.onrender.com/api/courses", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setCourses(res.data))
+      .catch(() => setError("Failed to load courses"));
   }, []);
 
   return (
     <div>
       <h2>Courses</h2>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {courses.length === 0 ? (
         <p>No courses available</p>
