@@ -1,28 +1,36 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 function MyCourses() {
-  const [list, setList] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(
-      "https://online-course-platform-project-backend.onrender.com/api/courses/mine",
-      {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      }
-    )
-      .then((r) => r.json())
-      .then((d) => setList(Array.isArray(d) ? d : []));
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No token found");
+      return;
+    }
+
+    axios
+      .get("https://online-course-platform-project-backend.onrender.com/api/courses/my", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setCourses(res.data))
+      .catch(() => setError("Failed to load courses"));
   }, []);
 
   return (
     <div>
       <h2>My Courses</h2>
 
-      {list.length === 0 ? "No courses yet" : (
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {courses.length === 0 ? (
+        <p>No courses yet</p>
+      ) : (
         <ul>
-          {list.map((c) => (
+          {courses.map((c) => (
             <li key={c._id}>{c.title}</li>
           ))}
         </ul>
